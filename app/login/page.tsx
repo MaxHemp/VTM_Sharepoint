@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { loginAction } from "@/lib/actions";
 import { getCurrentUser, hasAnyUser } from "@/lib/auth";
+import { VtmLogo } from "@/components/logo";
 
 export const dynamic = "force-dynamic";
 
@@ -18,14 +19,10 @@ export default async function LoginPage({
       <div className="relative w-full max-w-sm">
         <div className="mb-8 text-center">
           <div
-            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg text-lg font-black text-white"
-            style={{
-              background: "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)",
-              fontFamily: "'Arial Narrow', Arial, sans-serif",
-              boxShadow: "0 0 32px rgba(31,78,255,0.45)",
-            }}
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-white p-1.5"
+            style={{ boxShadow: "0 0 32px rgba(31,78,255,0.45)" }}
           >
-            VTM
+            <VtmLogo size={52} />
           </div>
           <h1
             className="text-2xl font-black text-white"
