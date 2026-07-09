@@ -42,3 +42,6 @@ next-env.d.ts
 
 # app data (sqlite db, uploads, auth secret)
 /data
+
+# lokale env-Datei fürs Deployment
+.env
