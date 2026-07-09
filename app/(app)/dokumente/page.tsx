@@ -11,6 +11,8 @@ import { getDb, type Doc, type Folder } from "@/lib/db";
 import { formatDateTime, formatSize } from "@/lib/format";
 import { IconFile, IconFolder } from "@/components/icons";
 import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/tech-illustration";
+import { UploadZone } from "@/components/upload-zone";
 
 type DocRow = Doc & { uploader: string | null };
 
@@ -69,7 +71,7 @@ export default async function DocumentsPage({
         description="Dateien des Teams hochladen, organisieren und teilen."
       />
 
-      <div className="mx-auto max-w-6xl px-8 py-10 lg:px-12">
+      <div className="vtm-enter mx-auto max-w-6xl px-8 py-10 lg:px-12">
         <nav aria-label="Pfad" className="mb-6 text-sm text-[var(--ink-soft)]">
           <Link
             href="/dokumente"
@@ -91,32 +93,11 @@ export default async function DocumentsPage({
         </nav>
 
         <div className="mb-8 flex flex-wrap items-stretch gap-4">
-          <form
-            action={uploadDocumentAction}
-            className="vtm-card-raised flex flex-wrap items-center gap-3 p-4"
-          >
-            {folderId !== null && (
-              <input type="hidden" name="folder_id" value={folderId} />
-            )}
-            <label htmlFor="upload-files" className="sr-only">
-              Dateien auswählen
-            </label>
-            <input
-              id="upload-files"
-              type="file"
-              name="files"
-              multiple
-              required
-              className="text-sm file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-[var(--surface-default)] file:px-4 file:py-2.5 file:text-sm file:font-medium file:text-[var(--ink)] file:ring-1 file:ring-[var(--hairline)]"
-            />
-            <button type="submit" className="btn-primary">
-              Hochladen
-            </button>
-          </form>
+          <UploadZone action={uploadDocumentAction} folderId={folderId} />
 
           <form
             action={createFolderAction}
-            className="vtm-card-raised flex items-center gap-3 p-4"
+            className="vtm-card-raised flex items-center gap-3 self-start p-4"
           >
             {folderId !== null && (
               <input type="hidden" name="parent_id" value={folderId} />
@@ -151,12 +132,11 @@ export default async function DocumentsPage({
             <tbody className="divide-y divide-[var(--hairline)]">
               {folders.length === 0 && docs.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-5 py-10 text-center text-[var(--ink-soft)]"
-                  >
-                    Dieser Ordner ist leer. Laden Sie eine Datei hoch oder
-                    legen Sie einen Ordner an.
+                  <td colSpan={5}>
+                    <EmptyState
+                      title="Dieser Ordner ist leer"
+                      hint="Ziehen Sie oben Dateien in die Uploadfläche oder legen Sie einen Ordner an."
+                    />
                   </td>
                 </tr>
               )}

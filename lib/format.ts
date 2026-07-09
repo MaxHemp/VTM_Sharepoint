@@ -31,6 +31,30 @@ export function formatSize(bytes: number): string {
   return `${(bytes / 1024 / 1024 / 1024).toFixed(1)} GB`;
 }
 
+/** Relative German time ("gerade eben", "vor 5 Min.", …) for feed entries. */
+export function formatRelative(sqliteUtc: string): string {
+  const then = new Date(sqliteUtc.replace(" ", "T") + "Z").getTime();
+  const diffMin = Math.round((Date.now() - then) / 60000);
+  if (diffMin < 1) return "gerade eben";
+  if (diffMin < 60) return `vor ${diffMin} Min.`;
+  const diffH = Math.round(diffMin / 60);
+  if (diffH < 24) return `vor ${diffH} Std.`;
+  const diffD = Math.round(diffH / 24);
+  if (diffD === 1) return "gestern";
+  if (diffD < 7) return `vor ${diffD} Tagen`;
+  return formatDateTime(sqliteUtc);
+}
+
+/** Initials for avatars: "Max Hempel" → "MH". */
+export function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0]!.toUpperCase())
+    .slice(0, 2)
+    .join("");
+}
+
 /** Today's date as YYYY-MM-DD in local time. */
 export function todayIso(): string {
   const now = new Date();

@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { getDb, type Task } from "@/lib/db";
 import { formatDate, todayIso } from "@/lib/format";
 import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/tech-illustration";
 
 type TaskRow = Task & { assignee: string | null; creator: string | null };
 
@@ -117,7 +118,7 @@ export default async function TasksPage() {
         description="Aufgaben des Teams anlegen, zuweisen und abschließen."
       />
 
-      <div className="mx-auto max-w-4xl px-8 py-10 lg:px-12">
+      <div className="vtm-enter mx-auto max-w-4xl px-8 py-10 lg:px-12">
         <form
           action={createTaskAction}
           className="vtm-card-raised grid gap-4 p-5 sm:grid-cols-2"
@@ -192,8 +193,11 @@ export default async function TasksPage() {
           </h2>
           <ul className="vtm-card divide-y divide-[var(--hairline)]">
             {open.length === 0 && (
-              <li className="px-6 py-7 text-sm text-[var(--ink-soft)]">
-                Keine offenen Aufgaben.
+              <li>
+                <EmptyState
+                  title="Keine offenen Aufgaben"
+                  hint="Legen Sie oben die nächste Aufgabe an und weisen Sie sie einem Mitglied zu."
+                />
               </li>
             )}
             {open.map((t) => (

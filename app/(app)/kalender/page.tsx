@@ -94,7 +94,7 @@ export default async function CalendarPage({
         </div>
       </PageHeader>
 
-      <div className="mx-auto max-w-6xl px-8 py-10 lg:px-12">
+      <div className="vtm-enter mx-auto max-w-6xl px-8 py-10 lg:px-12">
         <div className="vtm-card overflow-hidden">
           <div className="grid grid-cols-7 border-b border-[var(--hairline)] bg-[var(--surface-raised)] text-center">
             {WEEKDAYS.map((d) => (
