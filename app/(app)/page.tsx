@@ -37,7 +37,7 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHeader
-        label="Start — Teamportal"
+        label="Start"
         title={`Willkommen, ${user.name.split(" ")[0]}`}
         description="Neuigkeiten und ein Überblick über Ihr Team."
       />
@@ -45,13 +45,16 @@ export default async function DashboardPage() {
       <div className="mx-auto max-w-6xl px-8 py-10 lg:px-12">
         <div className="grid gap-10 lg:grid-cols-3">
           <section className="lg:col-span-2">
-            <h2 className="vtm-label mb-4">News & Ankündigungen</h2>
+            <h2 className="vtm-kicker mb-4">News & Ankündigungen</h2>
 
             <form
               action={createAnnouncementAction}
-              className="vtm-card mb-8 p-5"
+              className="vtm-card-raised mb-8 p-5"
             >
-              <label htmlFor="news-title" className="mb-1 block text-sm font-bold">
+              <label
+                htmlFor="news-title"
+                className="mb-1 block text-sm font-bold"
+              >
                 Neue Ankündigung
               </label>
               <input
@@ -75,46 +78,57 @@ export default async function DashboardPage() {
 
             <div className="space-y-4">
               {announcements.length === 0 && (
-                <p className="vtm-card p-6 text-sm text-[#8A9BB5]">
+                <p className="vtm-card p-6 text-sm text-[var(--ink-soft)]">
                   Noch keine Ankündigungen. Schreiben Sie die erste.
                 </p>
               )}
-              {announcements.map((a, index) => (
-                <article key={a.id} className="vtm-card p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      {index === 0 && (
-                        <span className="gold-badge mb-2">Aktuell</span>
-                      )}
-                      <h3
-                        className="text-lg font-bold"
-                        style={{ fontFamily: "'Arial Narrow', Arial, sans-serif" }}
-                      >
-                        {a.title}
-                      </h3>
-                      <p className="mt-0.5 text-xs text-[#8A9BB5]">
-                        {a.author ?? "Unbekannt"} · {formatDateTime(a.created_at)}
-                      </p>
-                    </div>
-                    {(user.role === "admin" || a.created_by === user.id) && (
-                      <form action={deleteAnnouncementAction}>
-                        <input type="hidden" name="id" value={a.id} />
-                        <button
-                          type="submit"
-                          className="min-h-6 text-xs text-[#8A9BB5] underline-offset-2 hover:text-red-700 hover:underline"
+              {announcements.map((a, index) => {
+                // Anker-Karte: Das neueste Stück ist das einzige
+                // Cobalt-Flächenelement der Seite (max. 1× pro Raster).
+                const anchor = index === 0;
+                return (
+                  <article
+                    key={a.id}
+                    className={anchor ? "vtm-card-anchor p-6" : "vtm-card p-6"}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        {anchor && <span className="gold-badge mb-3">Aktuell</span>}
+                        <h3 className="font-display text-lg font-bold leading-snug">
+                          {a.title}
+                        </h3>
+                        <p
+                          className={`vtm-mono mt-1 text-xs ${
+                            anchor ? "opacity-70" : "text-[var(--ink-soft)]"
+                          }`}
                         >
-                          Löschen
-                        </button>
-                      </form>
+                          {a.author ?? "Unbekannt"} · {formatDateTime(a.created_at)}
+                        </p>
+                      </div>
+                      {(user.role === "admin" || a.created_by === user.id) && (
+                        <form action={deleteAnnouncementAction}>
+                          <input type="hidden" name="id" value={a.id} />
+                          <button
+                            type="submit"
+                            className={`min-h-6 text-xs underline-offset-2 hover:underline ${
+                              anchor
+                                ? "opacity-70 hover:opacity-100"
+                                : "text-[var(--ink-soft)] hover:text-red-700"
+                            }`}
+                          >
+                            Löschen
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                    {a.body && (
+                      <p className="mt-3 max-w-[68ch] whitespace-pre-wrap text-[15px] leading-relaxed">
+                        {a.body}
+                      </p>
                     )}
-                  </div>
-                  {a.body && (
-                    <p className="mt-3 max-w-[68ch] whitespace-pre-wrap text-[15px] leading-relaxed">
-                      {a.body}
-                    </p>
-                  )}
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </section>
 
@@ -124,13 +138,13 @@ export default async function DashboardPage() {
                 <h2 className="vtm-label">Nächste Termine</h2>
                 <Link
                   href="/kalender"
-                  className="text-xs font-medium text-[#1F4EFF] underline-offset-2 hover:underline"
+                  className="text-xs font-medium text-[var(--accent)] underline-offset-2 hover:underline"
                 >
                   Kalender →
                 </Link>
               </div>
               {upcoming.length === 0 ? (
-                <p className="text-sm text-[#8A9BB5]">
+                <p className="text-sm text-[var(--ink-soft)]">
                   Keine anstehenden Termine.
                 </p>
               ) : (
@@ -139,15 +153,12 @@ export default async function DashboardPage() {
                     <li key={e.id} className="flex gap-3 text-sm">
                       <span
                         className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)",
-                        }}
+                        style={{ background: "var(--gradient-electric)" }}
                         aria-hidden
                       />
                       <div>
                         <div className="font-bold">{e.title}</div>
-                        <div className="text-xs text-[#8A9BB5]">
+                        <div className="vtm-mono text-xs text-[var(--ink-soft)]">
                           {formatDate(e.date)}
                           {e.start_time && ` · ${e.start_time} Uhr`}
                           {e.location && ` · ${e.location}`}
@@ -164,13 +175,13 @@ export default async function DashboardPage() {
                 <h2 className="vtm-label">Meine offenen Aufgaben</h2>
                 <Link
                   href="/aufgaben"
-                  className="text-xs font-medium text-[#1F4EFF] underline-offset-2 hover:underline"
+                  className="text-xs font-medium text-[var(--accent)] underline-offset-2 hover:underline"
                 >
                   Alle →
                 </Link>
               </div>
               {myTasks.length === 0 ? (
-                <p className="text-sm text-[#8A9BB5]">
+                <p className="text-sm text-[var(--ink-soft)]">
                   Ihnen sind derzeit keine offenen Aufgaben zugewiesen.
                 </p>
               ) : (
@@ -179,7 +190,7 @@ export default async function DashboardPage() {
                     <li key={t.id} className="text-sm">
                       <div className="font-bold">{t.title}</div>
                       {t.due_date && (
-                        <div className="text-xs text-[#8A9BB5]">
+                        <div className="vtm-mono text-xs text-[var(--ink-soft)]">
                           Fällig am {formatDate(t.due_date)}
                         </div>
                       )}

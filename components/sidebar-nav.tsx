@@ -24,7 +24,7 @@ export function SidebarNav({ isAdmin }: { isAdmin: boolean }) {
     : NAV;
 
   return (
-    <nav className="relative flex-1 space-y-1 px-3" aria-label="Hauptnavigation">
+    <nav className="flex-1 space-y-1 px-3" aria-label="Hauptnavigation">
       {items.map((item) => {
         const active =
           item.href === "/"
@@ -37,12 +37,12 @@ export function SidebarNav({ isAdmin }: { isAdmin: boolean }) {
             aria-current={active ? "page" : undefined}
             className={`flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
               active
-                ? "text-white shadow-[0_2px_10px_rgba(31,78,255,0.35)]"
-                : "text-[#8A9BB5] hover:bg-white/5 hover:text-white"
+                ? "text-white shadow-[0_2px_10px_rgba(31,78,255,0.3)]"
+                : "text-[var(--ink-soft)] hover:bg-[var(--surface-raised)] hover:text-[var(--ink)]"
             }`}
             style={
               active
-                ? { background: "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)" }
+                ? { background: "var(--gradient-electric)" }
                 : undefined
             }
           >

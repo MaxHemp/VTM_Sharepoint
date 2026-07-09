@@ -70,10 +70,10 @@ export default async function DocumentsPage({
       />
 
       <div className="mx-auto max-w-6xl px-8 py-10 lg:px-12">
-        <nav aria-label="Pfad" className="mb-6 text-sm text-[#8A9BB5]">
+        <nav aria-label="Pfad" className="mb-6 text-sm text-[var(--ink-soft)]">
           <Link
             href="/dokumente"
-            className="font-medium text-[#1F4EFF] underline-offset-2 hover:underline"
+            className="font-medium text-[var(--accent)] underline-offset-2 hover:underline"
           >
             Alle Dokumente
           </Link>
@@ -82,7 +82,7 @@ export default async function DocumentsPage({
               {" / "}
               <Link
                 href={`/dokumente?ordner=${f.id}`}
-                className="font-medium text-[#1F4EFF] underline-offset-2 hover:underline"
+                className="font-medium text-[var(--accent)] underline-offset-2 hover:underline"
               >
                 {f.name}
               </Link>
@@ -93,7 +93,7 @@ export default async function DocumentsPage({
         <div className="mb-8 flex flex-wrap items-stretch gap-4">
           <form
             action={uploadDocumentAction}
-            className="vtm-card flex flex-wrap items-center gap-3 p-4"
+            className="vtm-card-raised flex flex-wrap items-center gap-3 p-4"
           >
             {folderId !== null && (
               <input type="hidden" name="folder_id" value={folderId} />
@@ -107,7 +107,7 @@ export default async function DocumentsPage({
               name="files"
               multiple
               required
-              className="text-sm file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#E8ECF2] file:px-4 file:py-2.5 file:text-sm file:font-medium file:text-[#0D1C3C] hover:file:bg-[#dde3ec]"
+              className="text-sm file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-[var(--surface-default)] file:px-4 file:py-2.5 file:text-sm file:font-medium file:text-[var(--ink)] file:ring-1 file:ring-[var(--hairline)]"
             />
             <button type="submit" className="btn-primary">
               Hochladen
@@ -116,7 +116,7 @@ export default async function DocumentsPage({
 
           <form
             action={createFolderAction}
-            className="vtm-card flex items-center gap-3 p-4"
+            className="vtm-card-raised flex items-center gap-3 p-4"
           >
             {folderId !== null && (
               <input type="hidden" name="parent_id" value={folderId} />
@@ -140,24 +140,20 @@ export default async function DocumentsPage({
         <div className="vtm-card overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-[#E8ECF2] bg-[#F5F7FA]">
-                <th className="vtm-label px-5 py-3.5 font-bold">Name</th>
-                <th className="vtm-label px-5 py-3.5 font-bold">Größe</th>
-                <th className="vtm-label px-5 py-3.5 font-bold">
-                  Hochgeladen von
-                </th>
-                <th className="vtm-label px-5 py-3.5 font-bold">Datum</th>
-                <th className="vtm-label px-5 py-3.5 text-right font-bold">
-                  Aktionen
-                </th>
+              <tr className="border-b border-[var(--hairline)] bg-[var(--surface-raised)]">
+                <th className="vtm-label px-5 py-3.5">Name</th>
+                <th className="vtm-label px-5 py-3.5">Größe</th>
+                <th className="vtm-label px-5 py-3.5">Hochgeladen von</th>
+                <th className="vtm-label px-5 py-3.5">Datum</th>
+                <th className="vtm-label px-5 py-3.5 text-right">Aktionen</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F5F7FA]">
+            <tbody className="divide-y divide-[var(--hairline)]">
               {folders.length === 0 && docs.length === 0 && (
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-5 py-10 text-center text-[#8A9BB5]"
+                    className="px-5 py-10 text-center text-[var(--ink-soft)]"
                   >
                     Dieser Ordner ist leer. Laden Sie eine Datei hoch oder
                     legen Sie einen Ordner an.
@@ -165,19 +161,22 @@ export default async function DocumentsPage({
                 </tr>
               )}
               {folders.map((f) => (
-                <tr key={`f-${f.id}`} className="transition-colors hover:bg-[#F5F7FA]">
+                <tr
+                  key={`f-${f.id}`}
+                  className="transition-colors hover:bg-[var(--surface-raised)]"
+                >
                   <td className="px-5 py-3.5">
                     <Link
                       href={`/dokumente?ordner=${f.id}`}
-                      className="inline-flex min-h-6 items-center gap-2.5 font-bold text-[#0D1C3C] hover:text-[#1F4EFF]"
+                      className="inline-flex min-h-6 items-center gap-2.5 font-bold text-[var(--ink)] hover:text-[var(--accent)]"
                     >
-                      <IconFolder className="shrink-0 text-[#1F4EFF]" />
+                      <IconFolder className="shrink-0 text-[var(--accent)]" />
                       {f.name}
                     </Link>
                   </td>
-                  <td className="px-5 py-3.5 text-[#8A9BB5]">–</td>
-                  <td className="px-5 py-3.5 text-[#8A9BB5]">–</td>
-                  <td className="px-5 py-3.5 text-[#8A9BB5]">
+                  <td className="px-5 py-3.5 text-[var(--ink-soft)]">–</td>
+                  <td className="px-5 py-3.5 text-[var(--ink-soft)]">–</td>
+                  <td className="vtm-mono px-5 py-3.5 text-[var(--ink-soft)]">
                     {formatDateTime(f.created_at)}
                   </td>
                   <td className="px-5 py-3.5 text-right">
@@ -186,7 +185,7 @@ export default async function DocumentsPage({
                         <input type="hidden" name="id" value={f.id} />
                         <button
                           type="submit"
-                          className="text-xs text-[#8A9BB5] underline-offset-2 hover:text-red-700 hover:underline"
+                          className="text-xs text-[var(--ink-soft)] underline-offset-2 hover:text-red-700 hover:underline"
                         >
                           Löschen
                         </button>
@@ -196,29 +195,32 @@ export default async function DocumentsPage({
                 </tr>
               ))}
               {docs.map((d) => (
-                <tr key={`d-${d.id}`} className="transition-colors hover:bg-[#F5F7FA]">
+                <tr
+                  key={`d-${d.id}`}
+                  className="transition-colors hover:bg-[var(--surface-raised)]"
+                >
                   <td className="px-5 py-3.5">
                     <a
                       href={`/api/dateien/${d.id}`}
-                      className="inline-flex min-h-6 items-center gap-2.5 font-medium text-[#0D1C3C] hover:text-[#1F4EFF]"
+                      className="inline-flex min-h-6 items-center gap-2.5 font-medium text-[var(--ink)] hover:text-[var(--accent)]"
                     >
-                      <IconFile className="shrink-0 text-[#8A9BB5]" />
+                      <IconFile className="shrink-0 text-[var(--ink-soft)]" />
                       {d.name}
                     </a>
                   </td>
-                  <td className="px-5 py-3.5 text-[#8A9BB5]">
+                  <td className="vtm-mono px-5 py-3.5 text-[var(--ink-soft)]">
                     {formatSize(d.size)}
                   </td>
-                  <td className="px-5 py-3.5 text-[#8A9BB5]">
+                  <td className="px-5 py-3.5 text-[var(--ink-soft)]">
                     {d.uploader ?? "Unbekannt"}
                   </td>
-                  <td className="px-5 py-3.5 text-[#8A9BB5]">
+                  <td className="vtm-mono px-5 py-3.5 text-[var(--ink-soft)]">
                     {formatDateTime(d.created_at)}
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <a
                       href={`/api/dateien/${d.id}`}
-                      className="mr-4 text-xs font-medium text-[#1F4EFF] underline-offset-2 hover:underline"
+                      className="mr-4 text-xs font-medium text-[var(--accent)] underline-offset-2 hover:underline"
                     >
                       Herunterladen
                     </a>
@@ -227,7 +229,7 @@ export default async function DocumentsPage({
                         <input type="hidden" name="id" value={d.id} />
                         <button
                           type="submit"
-                          className="text-xs text-[#8A9BB5] underline-offset-2 hover:text-red-700 hover:underline"
+                          className="text-xs text-[var(--ink-soft)] underline-offset-2 hover:text-red-700 hover:underline"
                         >
                           Löschen
                         </button>

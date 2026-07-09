@@ -34,11 +34,11 @@ function TaskItem({
           className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-md border text-xs text-white transition-colors ${
             task.status === "done"
               ? "border-transparent"
-              : "border-[#8A9BB5] bg-white hover:border-[#1F4EFF]"
+              : "border-[var(--ink-soft)] bg-[var(--surface-default)] hover:border-[var(--accent)]"
           }`}
           style={
             task.status === "done"
-              ? { background: "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)" }
+              ? { background: "var(--gradient-electric)" }
               : undefined
           }
         >
@@ -48,20 +48,24 @@ function TaskItem({
       <div className="min-w-0 flex-1">
         <div
           className={`font-bold ${
-            task.status === "done" ? "text-[#8A9BB5] line-through" : ""
+            task.status === "done"
+              ? "text-[var(--ink-soft)] line-through"
+              : "text-[var(--ink)]"
           }`}
         >
           {task.title}
         </div>
         {task.description && (
-          <p className="mt-0.5 max-w-[68ch] whitespace-pre-wrap text-sm text-[#122952]">
+          <p className="mt-0.5 max-w-[68ch] whitespace-pre-wrap text-sm text-[var(--ink)]">
             {task.description}
           </p>
         )}
-        <p className="mt-1 text-xs text-[#8A9BB5]">
+        <p className="mt-1 text-xs text-[var(--ink-soft)]">
           {task.assignee ? `Zugewiesen an ${task.assignee}` : "Nicht zugewiesen"}
           {task.due_date && (
-            <span className={overdue ? "font-bold text-red-700" : ""}>
+            <span
+              className={overdue ? "font-bold text-red-700" : "vtm-mono"}
+            >
               {" "}
               · fällig am {formatDate(task.due_date)}
               {overdue && " (überfällig)"}
@@ -75,7 +79,7 @@ function TaskItem({
           <input type="hidden" name="id" value={task.id} />
           <button
             type="submit"
-            className="text-xs text-[#8A9BB5] underline-offset-2 hover:text-red-700 hover:underline"
+            className="text-xs text-[var(--ink-soft)] underline-offset-2 hover:text-red-700 hover:underline"
           >
             Löschen
           </button>
@@ -114,7 +118,10 @@ export default async function TasksPage() {
       />
 
       <div className="mx-auto max-w-4xl px-8 py-10 lg:px-12">
-        <form action={createTaskAction} className="vtm-card grid gap-4 p-5 sm:grid-cols-2">
+        <form
+          action={createTaskAction}
+          className="vtm-card-raised grid gap-4 p-5 sm:grid-cols-2"
+        >
           <div className="sm:col-span-2">
             <label htmlFor="task-title" className="mb-1 block text-sm font-bold">
               Neue Aufgabe
@@ -130,7 +137,7 @@ export default async function TasksPage() {
           <div className="sm:col-span-2">
             <label
               htmlFor="task-desc"
-              className="mb-1 block text-xs text-[#8A9BB5]"
+              className="mb-1 block text-xs text-[var(--ink-soft)]"
             >
               Beschreibung (optional)
             </label>
@@ -144,7 +151,7 @@ export default async function TasksPage() {
           <div>
             <label
               htmlFor="task-assignee"
-              className="mb-1 block text-xs text-[#8A9BB5]"
+              className="mb-1 block text-xs text-[var(--ink-soft)]"
             >
               Zuweisen an
             </label>
@@ -165,7 +172,7 @@ export default async function TasksPage() {
           <div>
             <label
               htmlFor="task-due"
-              className="mb-1 block text-xs text-[#8A9BB5]"
+              className="mb-1 block text-xs text-[var(--ink-soft)]"
             >
               Fällig am
             </label>
@@ -180,12 +187,12 @@ export default async function TasksPage() {
         </form>
 
         <section className="mt-10">
-          <h2 className="vtm-label electric-underline mb-4">
+          <h2 className="vtm-kicker accent-line mb-4">
             Offen ({open.length})
           </h2>
-          <ul className="vtm-card divide-y divide-[#F5F7FA]">
+          <ul className="vtm-card divide-y divide-[var(--hairline)]">
             {open.length === 0 && (
-              <li className="px-6 py-7 text-sm text-[#8A9BB5]">
+              <li className="px-6 py-7 text-sm text-[var(--ink-soft)]">
                 Keine offenen Aufgaben.
               </li>
             )}
@@ -201,10 +208,10 @@ export default async function TasksPage() {
 
         {done.length > 0 && (
           <section className="mt-10">
-            <h2 className="vtm-label electric-underline mb-4">
+            <h2 className="vtm-kicker accent-line mb-4">
               Erledigt ({done.length})
             </h2>
-            <ul className="vtm-card divide-y divide-[#F5F7FA]">
+            <ul className="vtm-card divide-y divide-[var(--hairline)]">
               {done.map((t) => (
                 <TaskItem
                   key={t.id}
