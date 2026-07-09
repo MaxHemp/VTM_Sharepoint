@@ -83,7 +83,7 @@ export async function createAnnouncementAction(
       `Neue Ankündigung: ${title}`,
       mailLayout(
         title,
-        `<p style="margin:0 0 12px;color:#8A9BB5;font-size:13px;">Veröffentlicht von ${esc(user.name)}</p>
+        `<p style="margin:0 0 12px;color:#3D4E6E;font-size:13px;">Veröffentlicht von ${esc(user.name)}</p>
          ${body ? `<p style="margin:0;white-space:pre-wrap;">${esc(body)}</p>` : ""}`
       )
     )
@@ -197,7 +197,7 @@ export async function uploadDocumentAction(formData: FormData): Promise<void> {
           : `${uploadedNames.length} neue Dokumente im Teamportal`,
         mailLayout(
           uploadedNames.length === 1 ? "Neues Dokument" : "Neue Dokumente",
-          `<p style="margin:0 0 12px;color:#8A9BB5;font-size:13px;">Hochgeladen von ${esc(user.name)}${folderName ? ` in den Ordner „${esc(folderName)}&ldquo;` : ""}</p>
+          `<p style="margin:0 0 12px;color:#3D4E6E;font-size:13px;">Hochgeladen von ${esc(user.name)}${folderName ? ` in den Ordner „${esc(folderName)}&ldquo;` : ""}</p>
            <ul style="margin:0;padding-left:20px;">${uploadedNames.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`
         )
       )
@@ -256,7 +256,7 @@ export async function createTaskAction(formData: FormData): Promise<void> {
       `Neue Aufgabe: ${title}`,
       mailLayout(
         title,
-        `<p style="margin:0 0 12px;color:#8A9BB5;font-size:13px;">Angelegt von ${esc(user.name)}${assignee ? ` · zugewiesen an ${esc(assignee)}` : ""}${dueDate ? ` · fällig am ${dueDate.split("-").reverse().join(".")}` : ""}</p>
+        `<p style="margin:0 0 12px;color:#3D4E6E;font-size:13px;">Angelegt von ${esc(user.name)}${assignee ? ` · zugewiesen an ${esc(assignee)}` : ""}${dueDate ? ` · fällig am ${dueDate.split("-").reverse().join(".")}` : ""}</p>
          ${description ? `<p style="margin:0;white-space:pre-wrap;">${esc(description)}</p>` : ""}`
       )
     )
@@ -322,7 +322,7 @@ export async function createEventAction(formData: FormData): Promise<void> {
       `Neuer Termin: ${title}`,
       mailLayout(
         title,
-        `<p style="margin:0 0 12px;color:#8A9BB5;font-size:13px;">Eingetragen von ${esc(user.name)}</p>
+        `<p style="margin:0 0 12px;color:#3D4E6E;font-size:13px;">Eingetragen von ${esc(user.name)}</p>
          <p style="margin:0 0 12px;"><strong>${date.split("-").reverse().join(".")}</strong>${startTime ? ` · ${esc(startTime)} Uhr` : ""}${location ? ` · ${esc(location)}` : ""}</p>
          ${description ? `<p style="margin:0;white-space:pre-wrap;">${esc(description)}</p>` : ""}`
       )
@@ -380,7 +380,7 @@ export async function createUserAction(formData: FormData): Promise<void> {
              <strong>Startpasswort:</strong> ${esc(password)}
            </td></tr>
          </table>
-         <p style="margin:16px 0 0;color:#8A9BB5;font-size:13px;">Bitte behandeln Sie diese Zugangsdaten vertraulich.</p>`
+         <p style="margin:16px 0 0;color:#3D4E6E;font-size:13px;">Bitte behandeln Sie diese Zugangsdaten vertraulich.</p>`
       ),
     })
   );

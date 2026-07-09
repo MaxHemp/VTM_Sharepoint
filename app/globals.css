@@ -1,101 +1,149 @@
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
 @import "tailwindcss";
 
-/* ─── VTM Corporate Design Tokens (CI/CD Guide v1.0) ─────────────── */
+/* ─── VTM System-Tokens V2.2 — hell, präzise, medienoptimiert ────── */
 :root {
-  --cobalt-dark: #0d1c3c;
-  --cobalt-mid: #122952;
-  --electric: #1f4eff;
-  --electric-light: #4b75ff;
-  --gold: #ffd700;
-  --gold-dark: #e5a800;
-  --off-white: #f5f7fa;
-  --light-gray: #e8ecf2;
-  --mid-gray: #8a9bb5;
-  /* Markenfarben ausschließlich als Gradient einsetzen */
-  --gradient-main: linear-gradient(135deg, #0d1c3c 0%, #122952 100%);
-  --gradient-vert: linear-gradient(180deg, #0d1c3c 0%, #122952 100%);
-  --gradient-electric: linear-gradient(135deg, #1f4eff 0%, #4b75ff 100%);
-  --gradient-gold: linear-gradient(135deg, #ffd700 0%, #e5a800 100%);
+  /* Core Farbpalette */
+  --vtm-cobalt: #0d1c3c;
+  --vtm-cobalt-light: #122952;
+  --vtm-white: #ffffff;
+  --vtm-off-white: #f5f7fa;
+  --vtm-electric: #1f4eff;
+  --vtm-electric-light: #4b75ff;
+  --vtm-gold-start: #ffd700;
+  --vtm-gold-end: #ff9000;
+
+  /* Semantische Flächenrollen (Standard: Hell) */
+  --surface-default: var(--vtm-white); /* Hauptbühne */
+  --surface-raised: var(--vtm-off-white); /* Cards, Infoboxen, Formulare */
+  --surface-anchor: linear-gradient(135deg, var(--vtm-cobalt), var(--vtm-cobalt-light)); /* max. 1× pro Sichtfläche */
+  --anchor-ink: var(--vtm-white);
+
+  /* Text & Akzente */
+  --ink: var(--vtm-cobalt);
+  --ink-soft: #3d4e6e;
+  --accent: var(--vtm-electric);
+  --accent-warm: linear-gradient(135deg, var(--vtm-gold-start), var(--vtm-gold-end));
+  --hairline: #e8ecf2;
+
+  /* Gradients für kleine Elemente (nie großflächig) */
+  --gradient-brand: linear-gradient(135deg, var(--vtm-cobalt), var(--vtm-cobalt-light));
+  --gradient-electric: linear-gradient(135deg, var(--vtm-electric), var(--vtm-electric-light));
+
+  --font-display: "Space Grotesk", "Arial Narrow", Arial, sans-serif;
+  --font-body: "Inter", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+}
+
+/* Dynamischer Dark-Mode-Invertierungsschutz: Cobalt wird Bühne, Weiß wird Anker */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-default: var(--vtm-cobalt);
+    --surface-raised: var(--vtm-cobalt-light);
+    --surface-anchor: var(--vtm-white);
+    --anchor-ink: var(--vtm-cobalt);
+    --ink: var(--vtm-white);
+    --ink-soft: #a0aec0;
+    --accent: var(--vtm-electric-light);
+    --hairline: #24365e;
+  }
 }
 
 body {
-  font-family: "Arial Narrow", Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
-  color: var(--cobalt-dark);
-  background: var(--off-white);
+  color: var(--ink);
+  background: var(--surface-default);
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
 
 /* Sichtbarer Fokus-Indikator (WCAG 2.4.7/2.4.11) — nie entfernen */
 :focus-visible {
-  outline: 2px solid var(--electric);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* ─── Markenflächen ──────────────────────────────────────────────── */
-.vtm-surface {
-  background: var(--gradient-vert);
-  position: relative;
-}
-.vtm-surface::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(31, 78, 255, 0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 10% 90%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
-  pointer-events: none;
+/* ─── 6px-Markenleiste: rahmt jede Sichtfläche oben und unten ────── */
+.vtm-brandbar {
+  height: 6px;
+  background: var(--gradient-electric);
+  flex-shrink: 0;
 }
 
-.vtm-banner {
-  background: var(--gradient-main);
-  position: relative;
-  overflow: hidden;
+/* ─── Typo-Bausteine ─────────────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
 }
-.vtm-banner::before {
+
+.vtm-mono {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  letter-spacing: 0.01em;
+}
+
+/* Kicker: ALL-CAPS-Label mit Gold-Signaturpunkt */
+.vtm-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.vtm-kicker::before {
   content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 50% 100% at 100% 50%, rgba(31, 78, 255, 0.18) 0%, transparent 60%);
-  pointer-events: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-warm);
+  flex-shrink: 0;
 }
-.vtm-banner::after {
+
+/* Schlichtes ALL-CAPS-Label ohne Signaturpunkt (Tabellen, Widgets) */
+.vtm-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Kurze 2px-Akzentlinie unter Abschnittsüberschriften */
+.accent-line {
+  position: relative;
+  padding-bottom: 12px;
+}
+.accent-line::after {
   content: "";
   position: absolute;
   bottom: 0;
   left: 0;
-  right: 0;
-  height: 3px;
+  width: 48px;
+  height: 2px;
   background: var(--gradient-electric);
 }
 
-/* ─── Typo-Bausteine ─────────────────────────────────────────────── */
-.vtm-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--electric);
-}
-
-.vtm-label-light {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--electric-light);
-}
-
-/* ─── Buttons (Radius 4–6px, keine Pills) ────────────────────────── */
+/* ─── Buttons: Primär-Button ist das einzige Cobalt-Flächenelement ─ */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--gradient-main);
-  color: #fff;
+  background: var(--surface-anchor);
+  color: var(--anchor-ink);
+  font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -104,10 +152,11 @@ body {
   border: none;
   cursor: pointer;
   min-height: 44px;
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 .btn-primary:hover {
   background: var(--gradient-electric);
+  color: #fff;
   box-shadow: 0 4px 14px rgba(31, 78, 255, 0.3);
 }
 
@@ -116,12 +165,13 @@ body {
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: var(--electric);
+  color: var(--accent);
+  font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
   padding: 10px 26px;
   border-radius: 6px;
-  border: 2px solid var(--electric);
+  border: 2px solid var(--accent);
   cursor: pointer;
   min-height: 44px;
   transition: background 0.2s, color 0.2s;
@@ -132,69 +182,61 @@ body {
   border-color: transparent;
 }
 
-/* ─── Cards ──────────────────────────────────────────────────────── */
+/* ─── Cards: weiß mit feiner Kontur; Anker-Karte max. 1× pro Raster ─ */
 .vtm-card {
-  background: #fff;
-  border: 1px solid var(--light-gray);
+  background: var(--surface-default);
+  border: 1px solid var(--hairline);
   border-radius: 8px;
 }
 
-.vtm-card-hover {
-  transition: transform 0.2s, box-shadow 0.2s;
+.vtm-card-raised {
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
 }
-.vtm-card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(13, 28, 60, 0.1);
+
+.vtm-card-anchor {
+  background: var(--surface-anchor);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  color: var(--anchor-ink);
 }
 
 /* ─── Formularfelder ─────────────────────────────────────────────── */
 .vtm-input {
   width: 100%;
-  background: #fff;
-  border: 1px solid var(--light-gray);
+  background: var(--surface-default);
+  border: 1px solid var(--hairline);
   border-radius: 6px;
   padding: 10px 14px;
   font-size: 15px;
-  font-family: inherit;
-  color: var(--cobalt-dark);
+  font-family: var(--font-body);
+  color: var(--ink);
   min-height: 44px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .vtm-input:focus {
   outline: none;
-  border-color: var(--electric);
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(31, 78, 255, 0.12);
 }
 .vtm-input::placeholder {
-  color: var(--mid-gray);
+  color: var(--ink-soft);
+  opacity: 0.7;
 }
 
 /* ─── Akzente ────────────────────────────────────────────────────── */
 .gold-badge {
   display: inline-block;
-  background: var(--gradient-gold);
-  color: var(--cobalt-dark);
+  background: var(--accent-warm);
+  color: var(--vtm-cobalt);
+  font-family: var(--font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 4px 12px;
   border-radius: 4px;
-}
-
-.electric-underline {
-  position: relative;
-  padding-bottom: 14px;
-  border-bottom: 2px solid var(--light-gray);
-}
-.electric-underline::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 48px;
-  height: 2px;
-  background: var(--gradient-electric);
 }
 
 /* ─── Barrierefreiheit: Bewegung reduzieren ──────────────────────── */
