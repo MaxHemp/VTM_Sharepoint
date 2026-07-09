@@ -37,7 +37,16 @@ fi
 cd "$INSTALL_DIR"
 
 echo ">>> [3/4] Konfiguration schreiben (Domain: $DOMAIN) ..."
-printf 'DOMAIN=%s\n' "$DOMAIN" > .env
+# Bestehende .env (z.B. mit SMTP-Zugangsdaten) erhalten — nur DOMAIN sicherstellen
+if [ -f .env ]; then
+  if grep -q '^DOMAIN=' .env; then
+    sed -i "s|^DOMAIN=.*|DOMAIN=${DOMAIN}|" .env
+  else
+    printf '\nDOMAIN=%s\n' "$DOMAIN" >> .env
+  fi
+else
+  printf 'DOMAIN=%s\n' "$DOMAIN" > .env
+fi
 
 echo ">>> [4/4] Anwendung bauen und starten — beim ersten Mal dauert das einige Minuten ..."
 docker compose up -d --build

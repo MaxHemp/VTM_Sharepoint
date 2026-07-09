@@ -10,6 +10,7 @@ Ein privates, selbst gehostetes Teamportal („eigenes SharePoint") für kleine 
 - **Aufgaben** — gemeinsame Aufgabenliste mit Zuweisung, Fälligkeitsdatum und Erledigt-Status (überfällige Aufgaben werden markiert).
 - **Kalender** — Monatsansicht mit Team-Terminen (Datum, Uhrzeit, Ort, Beschreibung).
 - **Verwaltung** (nur Admins) — Mitglieder anlegen, Passwörter zurücksetzen, Mitglieder entfernen.
+- **E-Mail-Benachrichtigungen** (optional, via SMTP) — neue Mitglieder erhalten ihre Zugangsdaten per Willkommens-E-Mail; das Team wird über neue Ankündigungen, Dokumente, Aufgaben und Termine benachrichtigt. Konfiguration über `SMTP_*`-Variablen in der `.env` (siehe `.env.example`); ohne Konfiguration werden einfach keine E-Mails gesendet.
 
 ## Technik
 
