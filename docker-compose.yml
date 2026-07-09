@@ -5,6 +5,15 @@ services:
     volumes:
       # Alle Daten (SQLite-DB, Uploads, Session-Secret) — regelmäßig sichern!
       - ./data:/app/data
+    environment:
+      # Öffentliche Adresse (für Links in E-Mails)
+      - APP_URL=https://${DOMAIN:-localhost}
+      # E-Mail-Versand (optional): ohne SMTP_HOST werden keine E-Mails gesendet
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - MAIL_FROM=${MAIL_FROM:-}
 
   caddy:
     image: caddy:2

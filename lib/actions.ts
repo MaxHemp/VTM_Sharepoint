@@ -5,6 +5,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { appUrl, esc, mailLayout, notifyTeam, sendMail } from "./mail";
 import {
   createSession,
   destroySession,
@@ -74,6 +76,18 @@ export async function createAnnouncementAction(
     )
     .run(title, body, user.id);
   revalidatePath("/");
+
+  after(() =>
+    notifyTeam(
+      user.id,
+      `Neue Ankündigung: ${title}`,
+      mailLayout(
+        title,
+        `<p style="margin:0 0 12px;color:#8A9BB5;font-size:13px;">Veröffentlicht von ${esc(user.name)}</p>
+         ${body ? `<p style="margin:0;white-space:pre-wrap;">${esc(body)}</p>` : ""}`
+      )
+    )
+  );
 }
 
 export async function deleteAnnouncementAction(
@@ -146,6 +160,7 @@ export async function uploadDocumentAction(formData: FormData): Promise<void> {
     .filter((f): f is File => f instanceof File && f.size > 0);
 
   const db = getDb();
+  const uploadedNames: string[] = [];
   for (const file of files) {
     const storedName = `${crypto.randomUUID()}${path.extname(file.name).slice(0, 20)}`;
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -162,8 +177,32 @@ export async function uploadDocumentAction(formData: FormData): Promise<void> {
       file.type || "application/octet-stream",
       user.id
     );
+    uploadedNames.push(path.basename(file.name));
   }
   revalidatePath("/dokumente");
+
+  if (uploadedNames.length > 0) {
+    const folderName = folderId
+      ? ((
+          db.prepare("SELECT name FROM folders WHERE id = ?").get(folderId) as
+            | { name: string }
+            | undefined
+        )?.name ?? null)
+      : null;
+    after(() =>
+      notifyTeam(
+        user.id,
+        uploadedNames.length === 1
+          ? `Neues Dokument: ${uploadedNames[0]}`
+          : `${uploadedNames.length} neue Dokumente im Teamportal`,
+        mailLayout(
+          uploadedNames.length === 1 ? "Neues Dokument" : "Neue Dokumente",
+          `<p style="margin:0 0 12px;color:#8A9BB5;font-size:13px;">Hochgeladen von ${esc(user.name)}${folderName ? ` in den Ordner „${esc(folderName)}&ldquo;` : ""}</p>
+           <ul style="margin:0;padding-left:20px;">${uploadedNames.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`
+        )
+      )
+    );
+  }
 }
 
 export async function deleteDocumentAction(formData: FormData): Promise<void> {
@@ -203,6 +242,25 @@ export async function createTaskAction(formData: FormData): Promise<void> {
     );
   revalidatePath("/aufgaben");
   revalidatePath("/");
+
+  const assignee = assignedRaw
+    ? ((
+        getDb()
+          .prepare("SELECT name FROM users WHERE id = ?")
+          .get(Number(assignedRaw)) as { name: string } | undefined
+      )?.name ?? null)
+    : null;
+  after(() =>
+    notifyTeam(
+      user.id,
+      `Neue Aufgabe: ${title}`,
+      mailLayout(
+        title,
+        `<p style="margin:0 0 12px;color:#8A9BB5;font-size:13px;">Angelegt von ${esc(user.name)}${assignee ? ` · zugewiesen an ${esc(assignee)}` : ""}${dueDate ? ` · fällig am ${dueDate.split("-").reverse().join(".")}` : ""}</p>
+         ${description ? `<p style="margin:0;white-space:pre-wrap;">${esc(description)}</p>` : ""}`
+      )
+    )
+  );
 }
 
 export async function toggleTaskAction(formData: FormData): Promise<void> {
@@ -254,6 +312,22 @@ export async function createEventAction(formData: FormData): Promise<void> {
     );
   revalidatePath("/kalender");
   revalidatePath("/");
+
+  const startTime = str(formData, "start_time");
+  const location = str(formData, "location");
+  const description = str(formData, "description");
+  after(() =>
+    notifyTeam(
+      user.id,
+      `Neuer Termin: ${title}`,
+      mailLayout(
+        title,
+        `<p style="margin:0 0 12px;color:#8A9BB5;font-size:13px;">Eingetragen von ${esc(user.name)}</p>
+         <p style="margin:0 0 12px;"><strong>${date.split("-").reverse().join(".")}</strong>${startTime ? ` · ${esc(startTime)} Uhr` : ""}${location ? ` · ${esc(location)}` : ""}</p>
+         ${description ? `<p style="margin:0;white-space:pre-wrap;">${esc(description)}</p>` : ""}`
+      )
+    )
+  );
 }
 
 export async function deleteEventAction(formData: FormData): Promise<void> {
@@ -291,6 +365,25 @@ export async function createUserAction(formData: FormData): Promise<void> {
     redirect("/admin?fehler=email");
   }
   revalidatePath("/admin");
+
+  after(() =>
+    sendMail({
+      to: [email],
+      subject: "Ihr Zugang zum VTM Teamportal",
+      html: mailLayout(
+        `Willkommen, ${name}`,
+        `<p style="margin:0 0 16px;">für Sie wurde ein Zugang zum VTM Teamportal angelegt — dem internen Portal für Dokumente, News, Aufgaben und Termine.</p>
+         <table role="presentation" cellpadding="0" cellspacing="0" style="background:#F5F7FA;border-left:4px solid #1F4EFF;border-radius:0 6px 6px 0;width:100%;">
+           <tr><td style="padding:16px 20px;font-family:'Arial Narrow',Arial,sans-serif;font-size:15px;line-height:1.8;">
+             <strong>Adresse:</strong> <a href="${appUrl()}" style="color:#1F4EFF;">${appUrl().replace("https://", "")}</a><br>
+             <strong>E-Mail:</strong> ${esc(email)}<br>
+             <strong>Startpasswort:</strong> ${esc(password)}
+           </td></tr>
+         </table>
+         <p style="margin:16px 0 0;color:#8A9BB5;font-size:13px;">Bitte behandeln Sie diese Zugangsdaten vertraulich.</p>`
+      ),
+    })
+  );
 }
 
 export async function deleteUserAction(formData: FormData): Promise<void> {
