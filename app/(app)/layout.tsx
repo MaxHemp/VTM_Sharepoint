@@ -1,6 +1,7 @@
 import { logoutAction } from "@/lib/actions";
 import { requireUser } from "@/lib/auth";
 import { IconLogout } from "@/components/icons";
+import { VtmLogo } from "@/components/logo";
 import { SidebarNav } from "@/components/sidebar-nav";
 
 // Auth checks must run on every request — never prerender these pages.
@@ -17,16 +18,8 @@ export default async function AppLayout({
     <div className="flex min-h-screen">
       <aside className="vtm-surface flex w-64 shrink-0 flex-col">
         <div className="relative flex items-center gap-3 px-5 pb-6 pt-6">
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-md font-black text-white"
-            style={{
-              background: "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)",
-              fontFamily: "'Arial Narrow', Arial, sans-serif",
-              fontSize: 18,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            VTM
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white p-1 shadow-[0_0_20px_rgba(31,78,255,0.35)]">
+            <VtmLogo size={32} />
           </div>
           <div>
             <div className="text-sm font-bold leading-tight text-white">
