@@ -3,6 +3,7 @@ import { createEventAction, deleteEventAction } from "@/lib/actions";
 import { requireUser } from "@/lib/auth";
 import { getDb, type Event } from "@/lib/db";
 import { formatDate, todayIso } from "@/lib/format";
+import { PageHeader } from "@/components/page-header";
 
 const MONTH_NAMES = [
   "Januar",
@@ -68,194 +69,184 @@ export default async function CalendarPage({
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Kalender</h1>
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/kalender?monat=${prev}`}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
-          >
+    <>
+      <PageHeader
+        label="Kalender"
+        title={`${MONTH_NAMES[month]} ${year}`}
+        description="Gemeinsame Termine des Teams im Überblick."
+      >
+        <div className="relative flex items-center gap-2">
+          <Link href={`/kalender?monat=${prev}`} className="btn-secondary !min-h-10 !border-white/40 !px-4 !py-1.5 !text-white hover:!border-transparent">
             ← Zurück
           </Link>
-          <span className="min-w-40 text-center text-sm font-semibold">
-            {MONTH_NAMES[month]} {year}
-          </span>
-          <Link
-            href={`/kalender?monat=${next}`}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
-          >
-            Weiter →
-          </Link>
-          <Link
-            href="/kalender"
-            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
-          >
+          <Link href="/kalender" className="btn-secondary !min-h-10 !border-white/40 !px-4 !py-1.5 !text-white hover:!border-transparent">
             Heute
           </Link>
+          <Link href={`/kalender?monat=${next}`} className="btn-secondary !min-h-10 !border-white/40 !px-4 !py-1.5 !text-white hover:!border-transparent">
+            Weiter →
+          </Link>
         </div>
-      </div>
+      </PageHeader>
 
-      <div className="mt-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-        <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center text-xs font-medium uppercase text-slate-500">
-          {WEEKDAYS.map((d) => (
-            <div key={d} className="py-2">
-              {d}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7">
-          {cells.map((day, i) => {
-            const iso =
-              day === null
-                ? null
-                : `${monthKey(year, month)}-${String(day).padStart(2, "0")}`;
-            const dayEvents = iso ? (byDay.get(iso) ?? []) : [];
-            return (
-              <div
-                key={i}
-                className={`min-h-24 border-b border-r border-slate-100 p-1.5 ${
-                  day === null ? "bg-slate-50" : ""
-                }`}
-              >
-                {day !== null && (
-                  <>
-                    <div
-                      className={`mb-1 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs ${
-                        iso === today
-                          ? "bg-blue-600 font-semibold text-white"
-                          : "text-slate-600"
-                      }`}
-                    >
-                      {day}
-                    </div>
-                    <div className="space-y-1">
-                      {dayEvents.map((e) => (
-                        <div
-                          key={e.id}
-                          title={`${e.title}${e.start_time ? ` (${e.start_time}${e.end_time ? `–${e.end_time}` : ""} Uhr)` : ""}${e.location ? ` @ ${e.location}` : ""}`}
-                          className="truncate rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-800"
-                        >
-                          {e.start_time && (
-                            <span className="font-medium">{e.start_time} </span>
-                          )}
-                          {e.title}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
+      <div className="mx-auto max-w-6xl px-8 py-10 lg:px-12">
+        <div className="vtm-card overflow-hidden">
+          <div className="grid grid-cols-7 border-b border-[#E8ECF2] bg-[#F5F7FA] text-center">
+            {WEEKDAYS.map((d) => (
+              <div key={d} className="vtm-label py-2.5">
+                {d}
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <section>
-          <h2 className="mb-3 text-lg font-semibold">Neuer Termin</h2>
-          <form
-            action={createEventAction}
-            className="grid gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:grid-cols-2"
-          >
-            <input
-              name="title"
-              required
-              placeholder="Titel"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:col-span-2"
-            />
-            <div>
-              <label className="mb-1 block text-xs text-slate-500">Datum</label>
-              <input
-                type="date"
-                name="date"
-                required
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="mb-1 block text-xs text-slate-500">Von</label>
-                <input
-                  type="time"
-                  name="start_time"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="mb-1 block text-xs text-slate-500">Bis</label>
-                <input
-                  type="time"
-                  name="end_time"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-            </div>
-            <input
-              name="location"
-              placeholder="Ort (optional)"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:col-span-2"
-            />
-            <textarea
-              name="description"
-              rows={2}
-              placeholder="Beschreibung (optional)"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:col-span-2"
-            />
-            <button
-              type="submit"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 sm:col-span-2 sm:justify-self-start"
-            >
-              Termin speichern
-            </button>
-          </form>
-        </section>
-
-        <section>
-          <h2 className="mb-3 text-lg font-semibold">
-            Termine im {MONTH_NAMES[month]}
-          </h2>
-          <ul className="divide-y divide-slate-100 rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-            {events.length === 0 && (
-              <li className="px-5 py-6 text-sm text-slate-500">
-                Keine Termine in diesem Monat.
-              </li>
-            )}
-            {events.map((e) => (
-              <li
-                key={e.id}
-                className="flex items-start justify-between gap-3 px-5 py-3"
-              >
-                <div>
-                  <div className="text-sm font-medium">{e.title}</div>
-                  <div className="text-xs text-slate-500">
-                    {formatDate(e.date)}
-                    {e.start_time &&
-                      ` · ${e.start_time}${e.end_time ? `–${e.end_time}` : ""} Uhr`}
-                    {e.location && ` · ${e.location}`}
-                  </div>
-                  {e.description && (
-                    <p className="mt-1 whitespace-pre-wrap text-xs text-slate-600">
-                      {e.description}
-                    </p>
+            ))}
+          </div>
+          <div className="grid grid-cols-7">
+            {cells.map((day, i) => {
+              const iso =
+                day === null
+                  ? null
+                  : `${monthKey(year, month)}-${String(day).padStart(2, "0")}`;
+              const dayEvents = iso ? (byDay.get(iso) ?? []) : [];
+              return (
+                <div
+                  key={i}
+                  className={`min-h-24 border-b border-r border-[#F5F7FA] p-1.5 ${
+                    day === null ? "bg-[#F5F7FA]" : "bg-white"
+                  }`}
+                >
+                  {day !== null && (
+                    <>
+                      <div
+                        className={`mb-1 inline-flex h-7 w-7 items-center justify-center rounded-md text-xs ${
+                          iso === today ? "font-bold text-white" : "text-[#122952]"
+                        }`}
+                        style={
+                          iso === today
+                            ? {
+                                background:
+                                  "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)",
+                              }
+                            : undefined
+                        }
+                      >
+                        {day}
+                      </div>
+                      <div className="space-y-1">
+                        {dayEvents.map((e) => (
+                          <div
+                            key={e.id}
+                            title={`${e.title}${e.start_time ? ` (${e.start_time}${e.end_time ? `–${e.end_time}` : ""} Uhr)` : ""}${e.location ? ` @ ${e.location}` : ""}`}
+                            className="truncate rounded border-l-2 border-[#1F4EFF] bg-[#F5F7FA] px-1.5 py-0.5 text-xs text-[#122952]"
+                          >
+                            {e.start_time && (
+                              <span className="font-bold">{e.start_time} </span>
+                            )}
+                            {e.title}
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
-                {(user.role === "admin" || e.created_by === user.id) && (
-                  <form action={deleteEventAction}>
-                    <input type="hidden" name="id" value={e.id} />
-                    <button
-                      type="submit"
-                      className="text-xs text-slate-400 hover:text-red-600"
-                    >
-                      Löschen
-                    </button>
-                  </form>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-10 grid gap-10 lg:grid-cols-2">
+          <section>
+            <h2 className="vtm-label electric-underline mb-4">Neuer Termin</h2>
+            <form action={createEventAction} className="vtm-card grid gap-4 p-5 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label htmlFor="ev-title" className="mb-1 block text-sm font-bold">
+                  Titel
+                </label>
+                <input id="ev-title" name="title" required className="vtm-input" />
+              </div>
+              <div>
+                <label htmlFor="ev-date" className="mb-1 block text-xs text-[#8A9BB5]">
+                  Datum
+                </label>
+                <input id="ev-date" type="date" name="date" required className="vtm-input" />
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label htmlFor="ev-start" className="mb-1 block text-xs text-[#8A9BB5]">
+                    Von
+                  </label>
+                  <input id="ev-start" type="time" name="start_time" className="vtm-input" />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor="ev-end" className="mb-1 block text-xs text-[#8A9BB5]">
+                    Bis
+                  </label>
+                  <input id="ev-end" type="time" name="end_time" className="vtm-input" />
+                </div>
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="ev-loc" className="mb-1 block text-xs text-[#8A9BB5]">
+                  Ort (optional)
+                </label>
+                <input id="ev-loc" name="location" className="vtm-input" />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="ev-desc" className="mb-1 block text-xs text-[#8A9BB5]">
+                  Beschreibung (optional)
+                </label>
+                <textarea id="ev-desc" name="description" rows={2} className="vtm-input" />
+              </div>
+              <button
+                type="submit"
+                className="btn-primary sm:col-span-2 sm:justify-self-start"
+              >
+                Termin speichern
+              </button>
+            </form>
+          </section>
+
+          <section>
+            <h2 className="vtm-label electric-underline mb-4">
+              Termine im {MONTH_NAMES[month]}
+            </h2>
+            <ul className="vtm-card divide-y divide-[#F5F7FA]">
+              {events.length === 0 && (
+                <li className="px-6 py-7 text-sm text-[#8A9BB5]">
+                  Keine Termine in diesem Monat.
+                </li>
+              )}
+              {events.map((e) => (
+                <li
+                  key={e.id}
+                  className="flex items-start justify-between gap-4 px-6 py-4"
+                >
+                  <div>
+                    <div className="text-sm font-bold">{e.title}</div>
+                    <div className="text-xs text-[#8A9BB5]">
+                      {formatDate(e.date)}
+                      {e.start_time &&
+                        ` · ${e.start_time}${e.end_time ? `–${e.end_time}` : ""} Uhr`}
+                      {e.location && ` · ${e.location}`}
+                    </div>
+                    {e.description && (
+                      <p className="mt-1 max-w-[60ch] whitespace-pre-wrap text-xs text-[#122952]">
+                        {e.description}
+                      </p>
+                    )}
+                  </div>
+                  {(user.role === "admin" || e.created_by === user.id) && (
+                    <form action={deleteEventAction}>
+                      <input type="hidden" name="id" value={e.id} />
+                      <button
+                        type="submit"
+                        className="text-xs text-[#8A9BB5] underline-offset-2 hover:text-red-700 hover:underline"
+                      >
+                        Löschen
+                      </button>
+                    </form>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

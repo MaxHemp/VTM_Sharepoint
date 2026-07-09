@@ -9,6 +9,8 @@ import {
 import { requireUser } from "@/lib/auth";
 import { getDb, type Doc, type Folder } from "@/lib/db";
 import { formatDateTime, formatSize } from "@/lib/format";
+import { IconFile, IconFolder } from "@/components/icons";
+import { PageHeader } from "@/components/page-header";
 
 type DocRow = Doc & { uploader: string | null };
 
@@ -60,163 +62,184 @@ export default async function DocumentsPage({
     .all(...(folderId === null ? [] : [folderId])) as DocRow[];
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <h1 className="text-2xl font-semibold">Dokumente</h1>
-      <nav className="mt-1 text-sm text-slate-500">
-        <Link href="/dokumente" className="hover:text-blue-600">
-          Alle Dokumente
-        </Link>
-        {path.map((f) => (
-          <span key={f.id}>
-            {" / "}
-            <Link
-              href={`/dokumente?ordner=${f.id}`}
-              className="hover:text-blue-600"
-            >
-              {f.name}
-            </Link>
-          </span>
-        ))}
-      </nav>
+    <>
+      <PageHeader
+        label="Dokumente"
+        title={current ? current.name : "Alle Dokumente"}
+        description="Dateien des Teams hochladen, organisieren und teilen."
+      />
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <form
-          action={uploadDocumentAction}
-          className="flex flex-wrap items-center gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200"
-        >
-          {folderId !== null && (
-            <input type="hidden" name="folder_id" value={folderId} />
-          )}
-          <input
-            type="file"
-            name="files"
-            multiple
-            required
-            className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-slate-200"
-          />
-          <button
-            type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+      <div className="mx-auto max-w-6xl px-8 py-10 lg:px-12">
+        <nav aria-label="Pfad" className="mb-6 text-sm text-[#8A9BB5]">
+          <Link
+            href="/dokumente"
+            className="font-medium text-[#1F4EFF] underline-offset-2 hover:underline"
           >
-            Hochladen
-          </button>
-        </form>
+            Alle Dokumente
+          </Link>
+          {path.map((f) => (
+            <span key={f.id}>
+              {" / "}
+              <Link
+                href={`/dokumente?ordner=${f.id}`}
+                className="font-medium text-[#1F4EFF] underline-offset-2 hover:underline"
+              >
+                {f.name}
+              </Link>
+            </span>
+          ))}
+        </nav>
 
-        <form
-          action={createFolderAction}
-          className="flex items-center gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200"
-        >
-          {folderId !== null && (
-            <input type="hidden" name="parent_id" value={folderId} />
-          )}
-          <input
-            name="name"
-            required
-            placeholder="Neuer Ordner"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        <div className="mb-8 flex flex-wrap items-stretch gap-4">
+          <form
+            action={uploadDocumentAction}
+            className="vtm-card flex flex-wrap items-center gap-3 p-4"
           >
-            Anlegen
-          </button>
-        </form>
-      </div>
-
-      <div className="mt-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Größe</th>
-              <th className="px-4 py-3">Hochgeladen von</th>
-              <th className="px-4 py-3">Datum</th>
-              <th className="px-4 py-3 text-right">Aktionen</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {folders.length === 0 && docs.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                  Dieser Ordner ist leer. Lade eine Datei hoch oder lege einen
-                  Ordner an.
-                </td>
-              </tr>
+            {folderId !== null && (
+              <input type="hidden" name="folder_id" value={folderId} />
             )}
-            {folders.map((f) => (
-              <tr key={`f-${f.id}`} className="hover:bg-slate-50">
-                <td className="px-4 py-3">
-                  <Link
-                    href={`/dokumente?ordner=${f.id}`}
-                    className="font-medium text-blue-700 hover:underline"
-                  >
-                    📁 {f.name}
-                  </Link>
-                </td>
-                <td className="px-4 py-3 text-slate-400">–</td>
-                <td className="px-4 py-3 text-slate-400">–</td>
-                <td className="px-4 py-3 text-slate-500">
-                  {formatDateTime(f.created_at)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  {(user.role === "admin" || f.created_by === user.id) && (
-                    <form action={deleteFolderAction} className="inline">
-                      <input type="hidden" name="id" value={f.id} />
-                      <button
-                        type="submit"
-                        className="text-xs text-slate-400 hover:text-red-600"
-                      >
-                        Löschen
-                      </button>
-                    </form>
-                  )}
-                </td>
+            <label htmlFor="upload-files" className="sr-only">
+              Dateien auswählen
+            </label>
+            <input
+              id="upload-files"
+              type="file"
+              name="files"
+              multiple
+              required
+              className="text-sm file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#E8ECF2] file:px-4 file:py-2.5 file:text-sm file:font-medium file:text-[#0D1C3C] hover:file:bg-[#dde3ec]"
+            />
+            <button type="submit" className="btn-primary">
+              Hochladen
+            </button>
+          </form>
+
+          <form
+            action={createFolderAction}
+            className="vtm-card flex items-center gap-3 p-4"
+          >
+            {folderId !== null && (
+              <input type="hidden" name="parent_id" value={folderId} />
+            )}
+            <label htmlFor="new-folder" className="sr-only">
+              Name des neuen Ordners
+            </label>
+            <input
+              id="new-folder"
+              name="name"
+              required
+              placeholder="Neuer Ordner"
+              className="vtm-input w-44"
+            />
+            <button type="submit" className="btn-secondary">
+              Anlegen
+            </button>
+          </form>
+        </div>
+
+        <div className="vtm-card overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-[#E8ECF2] bg-[#F5F7FA]">
+                <th className="vtm-label px-5 py-3.5 font-bold">Name</th>
+                <th className="vtm-label px-5 py-3.5 font-bold">Größe</th>
+                <th className="vtm-label px-5 py-3.5 font-bold">
+                  Hochgeladen von
+                </th>
+                <th className="vtm-label px-5 py-3.5 font-bold">Datum</th>
+                <th className="vtm-label px-5 py-3.5 text-right font-bold">
+                  Aktionen
+                </th>
               </tr>
-            ))}
-            {docs.map((d) => (
-              <tr key={`d-${d.id}`} className="hover:bg-slate-50">
-                <td className="px-4 py-3">
-                  <a
-                    href={`/api/dateien/${d.id}`}
-                    className="font-medium text-slate-800 hover:text-blue-700 hover:underline"
+            </thead>
+            <tbody className="divide-y divide-[#F5F7FA]">
+              {folders.length === 0 && docs.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-5 py-10 text-center text-[#8A9BB5]"
                   >
-                    📄 {d.name}
-                  </a>
-                </td>
-                <td className="px-4 py-3 text-slate-500">
-                  {formatSize(d.size)}
-                </td>
-                <td className="px-4 py-3 text-slate-500">
-                  {d.uploader ?? "Unbekannt"}
-                </td>
-                <td className="px-4 py-3 text-slate-500">
-                  {formatDateTime(d.created_at)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <a
-                    href={`/api/dateien/${d.id}`}
-                    className="mr-3 text-xs text-blue-600 hover:underline"
-                  >
-                    Herunterladen
-                  </a>
-                  {(user.role === "admin" || d.uploaded_by === user.id) && (
-                    <form action={deleteDocumentAction} className="inline">
-                      <input type="hidden" name="id" value={d.id} />
-                      <button
-                        type="submit"
-                        className="text-xs text-slate-400 hover:text-red-600"
-                      >
-                        Löschen
-                      </button>
-                    </form>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    Dieser Ordner ist leer. Laden Sie eine Datei hoch oder
+                    legen Sie einen Ordner an.
+                  </td>
+                </tr>
+              )}
+              {folders.map((f) => (
+                <tr key={`f-${f.id}`} className="transition-colors hover:bg-[#F5F7FA]">
+                  <td className="px-5 py-3.5">
+                    <Link
+                      href={`/dokumente?ordner=${f.id}`}
+                      className="inline-flex min-h-6 items-center gap-2.5 font-bold text-[#0D1C3C] hover:text-[#1F4EFF]"
+                    >
+                      <IconFolder className="shrink-0 text-[#1F4EFF]" />
+                      {f.name}
+                    </Link>
+                  </td>
+                  <td className="px-5 py-3.5 text-[#8A9BB5]">–</td>
+                  <td className="px-5 py-3.5 text-[#8A9BB5]">–</td>
+                  <td className="px-5 py-3.5 text-[#8A9BB5]">
+                    {formatDateTime(f.created_at)}
+                  </td>
+                  <td className="px-5 py-3.5 text-right">
+                    {(user.role === "admin" || f.created_by === user.id) && (
+                      <form action={deleteFolderAction} className="inline">
+                        <input type="hidden" name="id" value={f.id} />
+                        <button
+                          type="submit"
+                          className="text-xs text-[#8A9BB5] underline-offset-2 hover:text-red-700 hover:underline"
+                        >
+                          Löschen
+                        </button>
+                      </form>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {docs.map((d) => (
+                <tr key={`d-${d.id}`} className="transition-colors hover:bg-[#F5F7FA]">
+                  <td className="px-5 py-3.5">
+                    <a
+                      href={`/api/dateien/${d.id}`}
+                      className="inline-flex min-h-6 items-center gap-2.5 font-medium text-[#0D1C3C] hover:text-[#1F4EFF]"
+                    >
+                      <IconFile className="shrink-0 text-[#8A9BB5]" />
+                      {d.name}
+                    </a>
+                  </td>
+                  <td className="px-5 py-3.5 text-[#8A9BB5]">
+                    {formatSize(d.size)}
+                  </td>
+                  <td className="px-5 py-3.5 text-[#8A9BB5]">
+                    {d.uploader ?? "Unbekannt"}
+                  </td>
+                  <td className="px-5 py-3.5 text-[#8A9BB5]">
+                    {formatDateTime(d.created_at)}
+                  </td>
+                  <td className="px-5 py-3.5 text-right">
+                    <a
+                      href={`/api/dateien/${d.id}`}
+                      className="mr-4 text-xs font-medium text-[#1F4EFF] underline-offset-2 hover:underline"
+                    >
+                      Herunterladen
+                    </a>
+                    {(user.role === "admin" || d.uploaded_by === user.id) && (
+                      <form action={deleteDocumentAction} className="inline">
+                        <input type="hidden" name="id" value={d.id} />
+                        <button
+                          type="submit"
+                          className="text-xs text-[#8A9BB5] underline-offset-2 hover:text-red-700 hover:underline"
+                        >
+                          Löschen
+                        </button>
+                      </form>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

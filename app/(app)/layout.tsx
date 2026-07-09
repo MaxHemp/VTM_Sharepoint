@@ -1,16 +1,10 @@
-import Link from "next/link";
 import { logoutAction } from "@/lib/actions";
 import { requireUser } from "@/lib/auth";
+import { IconLogout } from "@/components/icons";
+import { SidebarNav } from "@/components/sidebar-nav";
 
 // Auth checks must run on every request — never prerender these pages.
 export const dynamic = "force-dynamic";
-
-const NAV = [
-  { href: "/", label: "Start", icon: "🏠" },
-  { href: "/dokumente", label: "Dokumente", icon: "📁" },
-  { href: "/aufgaben", label: "Aufgaben", icon: "✅" },
-  { href: "/kalender", label: "Kalender", icon: "📅" },
-];
 
 export default async function AppLayout({
   children,
@@ -21,56 +15,58 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-white">
-        <div className="flex items-center gap-2 px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-            V
+      <aside className="vtm-surface flex w-64 shrink-0 flex-col">
+        <div className="relative flex items-center gap-3 px-5 pb-6 pt-6">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-md font-black text-white"
+            style={{
+              background: "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)",
+              fontFamily: "'Arial Narrow', Arial, sans-serif",
+              fontSize: 18,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            VTM
           </div>
           <div>
-            <div className="text-sm font-semibold leading-tight">
-              VTM Teamportal
+            <div className="text-sm font-bold leading-tight text-white">
+              Teamportal
             </div>
-            <div className="text-xs text-slate-500">Internes Portal</div>
+            <div className="vtm-label-light mt-0.5" style={{ fontSize: 9 }}>
+              VersicherungsTech Magazin
+            </div>
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 px-3">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-            >
-              <span aria-hidden>{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-          {user.role === "admin" && (
-            <Link
-              href="/admin"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-            >
-              <span aria-hidden>⚙️</span>
-              Verwaltung
-            </Link>
-          )}
-        </nav>
+        <SidebarNav isAdmin={user.role === "admin"} />
 
-        <div className="border-t border-slate-200 px-5 py-4">
-          <div className="text-sm font-medium">{user.name}</div>
-          <div className="truncate text-xs text-slate-500">{user.email}</div>
+        <div className="relative border-t border-white/10 px-5 py-5">
+          <p
+            className="mb-4 text-[13px] font-light italic leading-snug"
+            style={{
+              color: "var(--gold)",
+              fontFamily: "'Arial Narrow', Arial, sans-serif",
+            }}
+          >
+            „Technologie verstehen.
+            <br />
+            Versicherung verändern.&ldquo;
+          </p>
+          <div className="text-sm font-medium text-white">{user.name}</div>
+          <div className="truncate text-xs text-[#8A9BB5]">{user.email}</div>
           <form action={logoutAction} className="mt-3">
             <button
               type="submit"
-              className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              className="flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-white/20 px-3 py-2 text-xs font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white"
             >
+              <IconLogout />
               Abmelden
             </button>
           </form>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-x-auto p-8">{children}</main>
+      <main className="min-w-0 flex-1">{children}</main>
     </div>
   );
 }

@@ -13,74 +13,73 @@ export default async function SetupPage({
   const { fehler } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white">
-            V
+    <main className="vtm-surface flex min-h-screen items-center justify-center p-4">
+      <div className="relative w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <div
+            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg text-lg font-black text-white"
+            style={{
+              background: "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)",
+              fontFamily: "'Arial Narrow', Arial, sans-serif",
+              boxShadow: "0 0 32px rgba(31,78,255,0.45)",
+            }}
+          >
+            VTM
           </div>
-          <h1 className="text-xl font-semibold">Ersteinrichtung</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Lege das erste Administrator-Konto für dein Team an.
+          <h1
+            className="text-2xl font-black text-white"
+            style={{ fontFamily: "'Arial Narrow', Arial, sans-serif" }}
+          >
+            Ersteinrichtung
+          </h1>
+          <p className="mt-2 text-sm font-light text-[#8A9BB5]">
+            Legen Sie das erste Administrator-Konto für Ihr Team an.
           </p>
         </div>
 
-        {fehler && (
-          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            Bitte alle Felder ausfüllen. Das Passwort braucht mindestens 8
-            Zeichen.
-          </p>
-        )}
-
-        <form action={setupAction} className="space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="name">
-              Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="email">
-              E-Mail
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium"
-              htmlFor="password"
+        <div className="vtm-card p-8">
+          {fehler && (
+            <p
+              role="alert"
+              className="mb-4 rounded-md border-l-4 border-red-700 bg-red-50 px-3 py-2 text-sm text-red-800"
             >
-              Passwort (mind. 8 Zeichen)
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            Konto anlegen & starten
-          </button>
-        </form>
+              Bitte füllen Sie alle Felder aus. Das Passwort braucht mindestens
+              8 Zeichen.
+            </p>
+          )}
+
+          <form action={setupAction} className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-bold" htmlFor="name">
+                Name
+              </label>
+              <input id="name" name="name" type="text" required className="vtm-input" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-bold" htmlFor="email">
+                E-Mail
+              </label>
+              <input id="email" name="email" type="email" required className="vtm-input" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-bold" htmlFor="password">
+                Passwort (mind. 8 Zeichen)
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                className="vtm-input"
+              />
+            </div>
+            <button type="submit" className="btn-primary w-full">
+              Konto anlegen & starten
+            </button>
+          </form>
+        </div>
       </div>
     </main>
   );
