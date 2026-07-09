@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { loginAction } from "@/lib/actions";
 import { getCurrentUser, hasAnyUser } from "@/lib/auth";
 import { VtmLogo } from "@/components/logo";
+import { TechIllustration } from "@/components/tech-illustration";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +18,14 @@ export default async function LoginPage({
   return (
     <main className="flex min-h-screen flex-col">
       <div className="vtm-brandbar" aria-hidden />
-      <div className="flex flex-1 items-center justify-center p-4">
-        <div className="w-full max-w-sm">
+      <div className="vtm-dotgrid relative flex flex-1 items-center justify-center overflow-hidden p-4">
+        <div className="pointer-events-none absolute -left-10 top-12 opacity-60" aria-hidden>
+          <TechIllustration size={220} />
+        </div>
+        <div className="pointer-events-none absolute -right-14 bottom-10 opacity-50" aria-hidden>
+          <TechIllustration size={280} />
+        </div>
+        <div className="vtm-enter relative w-full max-w-sm">
           <div className="mb-8 text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
               <VtmLogo size={60} />

@@ -1,5 +1,6 @@
 import { logoutAction } from "@/lib/actions";
 import { requireUser } from "@/lib/auth";
+import { Avatar } from "@/components/avatar";
 import { IconLogout } from "@/components/icons";
 import { VtmLogo } from "@/components/logo";
 import { SidebarNav } from "@/components/sidebar-nav";
@@ -42,11 +43,16 @@ export default async function AppLayout({
               <br />
               Versicherung verändern.&ldquo;
             </p>
-            <div className="text-sm font-medium text-[var(--ink)]">
-              {user.name}
-            </div>
-            <div className="truncate text-xs text-[var(--ink-soft)]">
-              {user.email}
+            <div className="flex items-center gap-2.5">
+              <Avatar name={user.name} size={34} />
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium text-[var(--ink)]">
+                  {user.name}
+                </div>
+                <div className="truncate text-xs text-[var(--ink-soft)]">
+                  {user.email}
+                </div>
+              </div>
             </div>
             <form action={logoutAction} className="mt-3">
               <button

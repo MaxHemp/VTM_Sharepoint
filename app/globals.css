@@ -234,6 +234,48 @@ body {
   border-radius: 4px;
 }
 
+/* ─── Tiefe & Bewegung ───────────────────────────────────────────── */
+.vtm-card,
+.vtm-card-raised,
+.vtm-card-anchor {
+  box-shadow: 0 1px 2px rgba(13, 28, 60, 0.04);
+}
+
+/* Sanftes Anheben interaktiver Karten */
+.vtm-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.vtm-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(13, 28, 60, 0.1);
+}
+
+/* Seiteninhalt blendet dezent ein */
+@keyframes vtm-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.vtm-enter {
+  animation: vtm-fade-up 0.35s ease-out both;
+}
+
+/* Dezentes Punktraster für die Inhaltsbühne (Tech-Charakter, bleibt hell) */
+.vtm-dotgrid {
+  background-image: radial-gradient(rgba(13, 28, 60, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Zeilen-Hover in Tabellen etwas lebendiger */
+tbody tr {
+  transition: background-color 0.12s ease;
+}
+
 /* ─── Barrierefreiheit: Bewegung reduzieren ──────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,

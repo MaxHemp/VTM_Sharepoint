@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getDb, type User } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
 import { PageHeader } from "@/components/page-header";
+import { Avatar } from "@/components/avatar";
 
 const FEHLER_TEXTE: Record<string, string> = {
   eingabe:
@@ -34,7 +35,7 @@ export default async function AdminPage({
         description="Zugänge anlegen, Passwörter zurücksetzen, Mitglieder entfernen."
       />
 
-      <div className="mx-auto max-w-5xl px-8 py-10 lg:px-12">
+      <div className="vtm-enter mx-auto max-w-5xl px-8 py-10 lg:px-12">
         {fehler && FEHLER_TEXTE[fehler] && (
           <p
             role="alert"
@@ -142,7 +143,10 @@ export default async function AdminPage({
                     className="align-top transition-colors hover:bg-[var(--surface-raised)]"
                   >
                     <td className="px-5 py-3.5 font-bold">
-                      {u.name}
+                      <span className="inline-flex items-center gap-2.5">
+                        <Avatar name={u.name} size={28} />
+                        {u.name}
+                      </span>
                       {u.id === admin.id && (
                         <span className="ml-2 rounded bg-[var(--surface-raised)] px-1.5 py-0.5 text-xs font-normal text-[var(--ink-soft)] ring-1 ring-[var(--hairline)]">
                           Sie
