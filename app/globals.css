@@ -41,18 +41,13 @@
   --font-mono: "IBM Plex Mono", "Courier New", monospace;
 }
 
-/* Dynamischer Dark-Mode-Invertierungsschutz: Cobalt wird Bühne, Weiß wird Anker */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface-default: var(--vtm-cobalt);
-    --surface-raised: var(--vtm-cobalt-light);
-    --surface-anchor: var(--vtm-white);
-    --anchor-ink: var(--vtm-cobalt);
-    --ink: var(--vtm-white);
-    --ink-soft: #a0aec0;
-    --accent: var(--vtm-electric-light);
-    --hairline: #24365e;
-  }
+/* Bewusste Entscheidung: kein automatischer Dark Mode — das Portal
+   erscheint immer im hellen V2.2-Standard, unabhängig von der
+   Betriebssystem-Einstellung. */
+
+html {
+  /* Auch native Elemente (Datumswähler, Scrollbalken) bleiben hell */
+  color-scheme: light;
 }
 
 body {
