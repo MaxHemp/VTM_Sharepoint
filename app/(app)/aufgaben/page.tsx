@@ -6,6 +6,7 @@ import {
 import { requireUser } from "@/lib/auth";
 import { getDb, type Task } from "@/lib/db";
 import { formatDate, todayIso } from "@/lib/format";
+import { PageHeader } from "@/components/page-header";
 
 type TaskRow = Task & { assignee: string | null; creator: string | null };
 
@@ -20,7 +21,7 @@ function TaskItem({
     task.status === "open" && task.due_date !== null && task.due_date < todayIso();
 
   return (
-    <li className="flex items-start gap-3 px-5 py-4">
+    <li className="flex items-start gap-4 px-6 py-4">
       <form action={toggleTaskAction}>
         <input type="hidden" name="id" value={task.id} />
         <button
@@ -30,32 +31,37 @@ function TaskItem({
               ? "Als offen markieren"
               : "Als erledigt markieren"
           }
-          className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded border text-xs ${
+          className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-md border text-xs text-white transition-colors ${
             task.status === "done"
-              ? "border-green-600 bg-green-600 text-white"
-              : "border-slate-300 bg-white text-transparent hover:border-blue-500"
+              ? "border-transparent"
+              : "border-[#8A9BB5] bg-white hover:border-[#1F4EFF]"
           }`}
+          style={
+            task.status === "done"
+              ? { background: "linear-gradient(135deg, #1F4EFF 0%, #4B75FF 100%)" }
+              : undefined
+          }
         >
-          ✓
+          {task.status === "done" ? "✓" : ""}
         </button>
       </form>
       <div className="min-w-0 flex-1">
         <div
-          className={`font-medium ${
-            task.status === "done" ? "text-slate-400 line-through" : ""
+          className={`font-bold ${
+            task.status === "done" ? "text-[#8A9BB5] line-through" : ""
           }`}
         >
           {task.title}
         </div>
         {task.description && (
-          <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-600">
+          <p className="mt-0.5 max-w-[68ch] whitespace-pre-wrap text-sm text-[#122952]">
             {task.description}
           </p>
         )}
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-[#8A9BB5]">
           {task.assignee ? `Zugewiesen an ${task.assignee}` : "Nicht zugewiesen"}
           {task.due_date && (
-            <span className={overdue ? "font-medium text-red-600" : ""}>
+            <span className={overdue ? "font-bold text-red-700" : ""}>
               {" "}
               · fällig am {formatDate(task.due_date)}
               {overdue && " (überfällig)"}
@@ -69,7 +75,7 @@ function TaskItem({
           <input type="hidden" name="id" value={task.id} />
           <button
             type="submit"
-            className="text-xs text-slate-400 hover:text-red-600"
+            className="text-xs text-[#8A9BB5] underline-offset-2 hover:text-red-700 hover:underline"
           >
             Löschen
           </button>
@@ -100,81 +106,90 @@ export default async function TasksPage() {
   const done = tasks.filter((t) => t.status === "done");
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <h1 className="text-2xl font-semibold">Aufgaben</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Gemeinsame Aufgabenliste des Teams.
-      </p>
+    <>
+      <PageHeader
+        label="Aufgaben"
+        title="Gemeinsame Aufgabenliste"
+        description="Aufgaben des Teams anlegen, zuweisen und abschließen."
+      />
 
-      <form
-        action={createTaskAction}
-        className="mt-6 grid gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:grid-cols-2"
-      >
-        <input
-          name="title"
-          required
-          placeholder="Neue Aufgabe"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:col-span-2"
-        />
-        <textarea
-          name="description"
-          rows={2}
-          placeholder="Beschreibung (optional)"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:col-span-2"
-        />
-        <select
-          name="assigned_to"
-          defaultValue=""
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-        >
-          <option value="">Niemandem zuweisen</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="date"
-          name="due_date"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 sm:col-span-2 sm:justify-self-start"
-        >
-          Aufgabe anlegen
-        </button>
-      </form>
-
-      <section className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold">
-          Offen <span className="text-sm text-slate-400">({open.length})</span>
-        </h2>
-        <ul className="divide-y divide-slate-100 rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-          {open.length === 0 && (
-            <li className="px-5 py-6 text-sm text-slate-500">
-              Keine offenen Aufgaben. 🎉
-            </li>
-          )}
-          {open.map((t) => (
-            <TaskItem
-              key={t.id}
-              task={t}
-              canDelete={user.role === "admin" || t.created_by === user.id}
+      <div className="mx-auto max-w-4xl px-8 py-10 lg:px-12">
+        <form action={createTaskAction} className="vtm-card grid gap-4 p-5 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="task-title" className="mb-1 block text-sm font-bold">
+              Neue Aufgabe
+            </label>
+            <input
+              id="task-title"
+              name="title"
+              required
+              placeholder="Was ist zu tun?"
+              className="vtm-input"
             />
-          ))}
-        </ul>
-      </section>
+          </div>
+          <div className="sm:col-span-2">
+            <label
+              htmlFor="task-desc"
+              className="mb-1 block text-xs text-[#8A9BB5]"
+            >
+              Beschreibung (optional)
+            </label>
+            <textarea
+              id="task-desc"
+              name="description"
+              rows={2}
+              className="vtm-input"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="task-assignee"
+              className="mb-1 block text-xs text-[#8A9BB5]"
+            >
+              Zuweisen an
+            </label>
+            <select
+              id="task-assignee"
+              name="assigned_to"
+              defaultValue=""
+              className="vtm-input"
+            >
+              <option value="">Niemanden</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="task-due"
+              className="mb-1 block text-xs text-[#8A9BB5]"
+            >
+              Fällig am
+            </label>
+            <input id="task-due" type="date" name="due_date" className="vtm-input" />
+          </div>
+          <button
+            type="submit"
+            className="btn-primary sm:col-span-2 sm:justify-self-start"
+          >
+            Aufgabe anlegen
+          </button>
+        </form>
 
-      {done.length > 0 && (
-        <section className="mt-8">
-          <h2 className="mb-3 text-lg font-semibold">
-            Erledigt{" "}
-            <span className="text-sm text-slate-400">({done.length})</span>
+        <section className="mt-10">
+          <h2 className="vtm-label electric-underline mb-4">
+            Offen ({open.length})
           </h2>
-          <ul className="divide-y divide-slate-100 rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-            {done.map((t) => (
+          <ul className="vtm-card divide-y divide-[#F5F7FA]">
+            {open.length === 0 && (
+              <li className="px-6 py-7 text-sm text-[#8A9BB5]">
+                Keine offenen Aufgaben.
+              </li>
+            )}
+            {open.map((t) => (
               <TaskItem
                 key={t.id}
                 task={t}
@@ -183,7 +198,24 @@ export default async function TasksPage() {
             ))}
           </ul>
         </section>
-      )}
-    </div>
+
+        {done.length > 0 && (
+          <section className="mt-10">
+            <h2 className="vtm-label electric-underline mb-4">
+              Erledigt ({done.length})
+            </h2>
+            <ul className="vtm-card divide-y divide-[#F5F7FA]">
+              {done.map((t) => (
+                <TaskItem
+                  key={t.id}
+                  task={t}
+                  canDelete={user.role === "admin" || t.created_by === user.id}
+                />
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    </>
   );
 }
