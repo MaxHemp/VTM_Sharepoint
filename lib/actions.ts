@@ -155,13 +155,66 @@ export async function uploadDocumentAction(formData: FormData): Promise<void> {
   const user = await requireUser();
   const folderRaw = str(formData, "folder_id");
   const folderId = folderRaw ? Number(folderRaw) : null;
-  const files = formData
-    .getAll("files")
-    .filter((f): f is File => f instanceof File && f.size > 0);
+
+  // files und paths werden paarweise angehängt; paths trägt bei
+  // Ordner-Uploads den relativen Pfad ("unterordner/datei.pdf")
+  const rawFiles = formData.getAll("files");
+  const rawPaths = formData.getAll("paths");
+  const pairs = rawFiles
+    .map((f, i) => ({
+      file: f,
+      relPath: typeof rawPaths[i] === "string" ? (rawPaths[i] as string) : "",
+    }))
+    .filter(
+      (p): p is { file: File; relPath: string } =>
+        p.file instanceof File && p.file.size > 0
+    );
 
   const db = getDb();
+
+  // Ordnerkette unterhalb des aktuellen Ordners sicherstellen (wiederverwenden
+  // oder anlegen); Pfad-Segmente wie ".." werden aus Sicherheitsgründen verworfen
+  const folderCache = new Map<string, number>();
+  const ensureFolderChain = (relDir: string): number | null => {
+    let parent = folderId;
+    let cachePath = "";
+    for (const segment of relDir.split("/")) {
+      const name = segment.trim();
+      if (!name || name === "." || name === "..") continue;
+      cachePath += "/" + name.toLowerCase();
+      const cached = folderCache.get(cachePath);
+      if (cached !== undefined) {
+        parent = cached;
+        continue;
+      }
+      const existing = db
+        .prepare(
+          `SELECT id FROM folders WHERE name = ? COLLATE NOCASE AND parent_id ${parent === null ? "IS NULL" : "= ?"}`
+        )
+        .get(...(parent === null ? [name] : [name, parent])) as
+        | { id: number }
+        | undefined;
+      const id =
+        existing?.id ??
+        Number(
+          db
+            .prepare(
+              "INSERT INTO folders (name, parent_id, created_by) VALUES (?, ?, ?)"
+            )
+            .run(name, parent, user.id).lastInsertRowid
+        );
+      folderCache.set(cachePath, id);
+      parent = id;
+    }
+    return parent;
+  };
+
   const uploadedNames: string[] = [];
-  for (const file of files) {
+  for (const { file, relPath } of pairs) {
+    const relDir = relPath.includes("/")
+      ? relPath.slice(0, relPath.lastIndexOf("/"))
+      : "";
+    const targetFolder = ensureFolderChain(relDir);
     const storedName = `${crypto.randomUUID()}${path.extname(file.name).slice(0, 20)}`;
     const buffer = Buffer.from(await file.arrayBuffer());
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -171,13 +224,13 @@ export async function uploadDocumentAction(formData: FormData): Promise<void> {
        VALUES (?, ?, ?, ?, ?, ?)`
     ).run(
       path.basename(file.name),
-      folderId,
+      targetFolder,
       storedName,
       file.size,
       file.type || "application/octet-stream",
       user.id
     );
-    uploadedNames.push(path.basename(file.name));
+    uploadedNames.push(relPath || path.basename(file.name));
   }
   revalidatePath("/dokumente");
 
