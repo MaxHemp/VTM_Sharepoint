@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:operations": "node --experimental-transform-types --test --test-isolation=none tests/operations.test.mjs"
+    "test:operations": "node --experimental-transform-types --test tests/operations.test.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.7",

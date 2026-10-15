@@ -36,7 +36,14 @@ export default async function OperationsPage({ searchParams }: { searchParams: P
       {error && <p role="alert" className="rounded border border-red-300 bg-red-50 p-4 text-red-900">{error}</p>}
       <section className="vtm-card p-5">
         <h2 className="font-display text-xl font-bold">Agententeam</h2>
-        <ul className="mt-3 grid gap-3 sm:grid-cols-2">{registry.map(agent => <li key={agent.id} className="rounded border border-[var(--hairline)] p-3"><strong className="capitalize">{agent.id}</strong> · {agent.role}<br/><span className="text-sm">{agent.connected ? "Werkzeugzugang eingerichtet; Chat-Anbindung noch prüfen" : "Werkzeugzugang noch einzurichten"}</span></li>)}</ul>
+        <ul className="mt-3 grid gap-3 sm:grid-cols-2">{registry.map(agent => <li key={agent.id} className="rounded border border-[var(--hairline)] p-3"><strong className="capitalize">{agent.id}</strong> · {agent.role}<br/><span className="text-sm">{agent.connected ? "Werkzeugzugang eingerichtet; Chat-Anbindung noch prüfen" : "Werkzeugzugang noch einzurichten"}</span>
+          <details className="mt-3"><summary className="cursor-pointer text-sm">Zugang einrichten oder erneuern</summary>
+            <p className="my-2 text-sm">30 Tage Zugriff auf {agent.id === "juergen" ? "alle Aufträge, Delegation, Ergebnisprüfung und Berichte" : "eigene zugewiesene Aufträge, Reservierungen und Ergebnisrückgabe"}. Keine Inhaberfreigaben. Ein vorhandener Zugang dieser Rolle wird ungültig. Die vertrauliche Datei nur in der vorgesehenen Agentenumgebung einrichten.</p>
+            <form action="/api/betrieb/zugang" method="post"><input type="hidden" name="actor" value={agent.id}/><input type="hidden" name="confirm" value="30-days"/>
+              <button className="btn-primary" type="submit">{agent.id}: 30-Tage-Zugang erstellen</button>
+            </form>
+          </details>
+        </li>)}</ul>
       </section>
       <section className="vtm-card p-5">
         <h2 className="font-display text-xl font-bold">Neuer Auftrag</h2>
