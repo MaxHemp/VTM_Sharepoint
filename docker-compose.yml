@@ -8,6 +8,8 @@ services:
     environment:
       # Öffentliche Adresse (für Links in E-Mails)
       - APP_URL=https://${DOMAIN:-localhost}
+      # Exakte Administrator-E-Mail des Inhabers; leer = Betriebszentrale gesperrt
+      - OPS_OWNER_EMAIL=${OPS_OWNER_EMAIL:-}
       # E-Mail-Versand (optional): ohne SMTP_HOST werden keine E-Mails gesendet
       - SMTP_HOST=${SMTP_HOST:-}
       - SMTP_PORT=${SMTP_PORT:-587}

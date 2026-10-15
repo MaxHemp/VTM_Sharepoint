@@ -35,7 +35,7 @@ export default async function AppLayout({
             </div>
           </div>
 
-          <SidebarNav isAdmin={user.role === "admin"} />
+          <SidebarNav isAdmin={user.role === "admin"} isOperationsOwner={user.role === "admin" && !!process.env.OPS_OWNER_EMAIL?.trim() && user.email.toLowerCase() === process.env.OPS_OWNER_EMAIL.trim().toLowerCase()} />
 
           <div className="border-t border-[var(--hairline)] px-5 py-5">
             <p className="font-display mb-4 text-[13px] font-medium italic leading-snug text-[var(--ink-soft)]">
