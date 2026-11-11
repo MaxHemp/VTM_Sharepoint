@@ -11,9 +11,9 @@ if (([DateTimeOffset]$credential.expires_at) -le [DateTimeOffset]::UtcNow) { thr
 $arguments = if ($ArgumentsFile) { Get-Content -LiteralPath $ArgumentsFile -Raw | ConvertFrom-Json -AsHashtable } else { @{} }
 if ($arguments -isnot [System.Collections.IDictionary]) { throw 'Argumente müssen ein JSON-Objekt sein.' }
 $leaseDirectory = Join-Path (Split-Path -Parent $CredentialPath) 'leases'
-$leasedActions = @('renew_lease','submit_result','report_blocker')
+$leasedActions = @('renew_lease','submit_result','report_blocker','cw_submit_research','cw_submit_production','cw_submit_design','cw_submit_qa')
 $leasePath = $null
-if ($Action -in (@('claim_job') + $leasedActions)) {
+if ($Action -in (@('claim_job','cw_claim_stage') + $leasedActions)) {
   if ($arguments.id -notmatch '^[0-9a-f-]{36}$') { throw 'Ungültige Auftrags-ID.' }
   $leasePath = Join-Path $leaseDirectory ($arguments.id + '.json')
   if ($Action -in $leasedActions) {

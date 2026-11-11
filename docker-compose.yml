@@ -16,6 +16,10 @@ services:
       - SMTP_USER=${SMTP_USER:-}
       - SMTP_PASS=${SMTP_PASS:-}
       - MAIL_FROM=${MAIL_FROM:-}
+      # Kunden-Auslieferung bleibt ohne ausdrückliche Aktivierung aus. Keine Zugänge erzeugt.
+      - CUSTOMER_DELIVERY_ENABLED=${CUSTOMER_DELIVERY_ENABLED:-false}
+      - GHOST_ADMIN_URL=${GHOST_ADMIN_URL:-}
+      - GHOST_ADMIN_API_KEY=${GHOST_ADMIN_API_KEY:-}
 
   caddy:
     image: caddy:2

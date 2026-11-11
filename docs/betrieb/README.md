@@ -1,5 +1,9 @@
 # Betriebszentrale – isolierter Pilot
 
+## Erweiterung Kundenworkflow (11.11.2026)
+
+Der additive Code unter `/betrieb/kunden` ergänzt kundengebundene Quellen, Recherche/Produktion/Gestaltung/QA, Max- und Kundenfreigabe pro Revision, eine dauerhafte Auslieferungsqueue sowie standardmäßig deaktivierte SMTP-/Ghost-Ausführer. Details, Tests und weiterhin offene Live-Aktivierung: [KUNDENWORKFLOW.md](KUNDENWORKFLOW.md). Die bisherigen `ops_*`-Aufträge bleiben Koordination ohne automatische Ausführung. Die folgenden Abschnitte dokumentieren ihren bisherigen Pilotumfang; sie sind kein aktueller Live-Statusbericht.
+
 ## Implementiert
 
 - `/betrieb`: ausschließlich für das bestehende Administrator-Konto, dessen E-Mail in `OPS_OWNER_EMAIL` steht. Ohne diese Konfiguration kein Inhaberzugriff. Andere Teamfunktionen bleiben unverändert.

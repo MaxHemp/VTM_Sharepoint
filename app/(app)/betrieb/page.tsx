@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import Link from "next/link";
 import { operations, requireOperationsOwner } from "@/lib/operations-runtime";
 import { operationAction } from "@/app/betrieb-actions";
 import { PageHeader } from "@/components/page-header";
@@ -23,6 +24,7 @@ export default async function OperationsPage({ searchParams }: { searchParams: P
   return <>
     <PageHeader label="Betriebszentrale" title="Jürgen und das VTM-Team" description="Du entscheidest kaufmännisch. Jürgen führt den freigegebenen Betrieb und berichtet täglich."/>
     <div className="mx-auto max-w-6xl space-y-8 p-6 lg:p-10">
+      <section className="vtm-card space-y-3 p-5"><h2 className="font-display text-xl font-bold">Kundenproduktion mit Freigaben</h2><p>Recherche, Content, Gestaltung und Prüfung mit deiner finalen Freigabe, Kundenbeleg und gesonderter Auslieferung. Live-Ausführung bleibt ohne technische Aktivierung aus.</p><Link className="btn-primary" href="/betrieb/kunden">Kundenworkflows öffnen</Link></section>
       <section className="vtm-card space-y-3 p-5" aria-label="Betriebsstatus">
         <h2 className="font-display text-xl font-bold">Isolierter Pilotbetrieb</h2>
         <p>Aufträge und Rückmeldungen werden dauerhaft gespeichert. Mailversand, Ghost und automatisches Starten der Agenten sind noch nicht angeschlossen.</p>
