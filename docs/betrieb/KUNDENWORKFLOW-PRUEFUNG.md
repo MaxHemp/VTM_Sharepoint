@@ -34,3 +34,19 @@ Lokal verifiziert mit Node 24.22.1:
 - Positiver Live-SMTP-/Ghost-Durchlauf: nicht erfolgt. Dafür fehlen verifizierter Serverzugriff, freigegebene konkrete Ziele/Identitäten und eine ausdrücklich genehmigte Testaktion.
 
 Die lokale fiktive Ende-zu-Ende-Prüfung ist **kein Beleg eines laufenden Live-E2E-Betriebs**.
+
+## Lokale Nachprüfung und Ergänzungen am 13. November 2026
+
+Auf Basis des unveränderten PR-Branches `feature/operations-center` (Ausgang
+`006d7fcd147c2c2e56c73f52746e18489c68476f`) erneut in einer Cloud-Arbeitskopie geprüft.
+
+- Benannte Pflicht-Assetrollen ergänzt: fehlende oder doppelte finale Rollen blockieren QA-Übergabe.
+- Lesende eigene Arbeitswarteschlange ergänzt: Kundenzugriff, aktuelle Stufe und aktive Reservierung werden berücksichtigt; keine Weckung vorgetäuscht.
+- Nicht installierte systemd-Vorlagen für ausschließlich interne Wartung vorbereitet, Auslieferung explizit deaktiviert.
+- 72 automatisierte Tests bestanden (15 Betriebszentrale, 27 Workflow, 30 Adapter), ESLint, TypeScript, Produktionsbuild und `git diff --check` bestanden.
+- Keine erneute HTTP-/Browser-/Windows-/Docker-/Live-Prüfung in diesem Ergänzungslauf. Die Timer-Prüfung mit systemd-analyze war wegen schreibgeschütztem `/run/systemd` nicht ausführbar; keine Hostkompatibilität behauptet.
+- Kein Merge, Deployment, Timerstart, Mailabruf, Chat-Start, Versand oder Veröffentlichung. Keine echten Kundenakten, Zugangsdaten oder neuen Rechte.
+
+Die Pflichtliste muss bewusst aus dem Auftrag abgeleitet werden. Software prüft die
+vorliegenden Rollen und Prüfsummen, nicht die Bildinhalte, Logo-Proportionen oder
+Vollständigkeit eines Freitextbriefings. Die Live-Aktivierungsgrenzen oben bleiben bestehen.

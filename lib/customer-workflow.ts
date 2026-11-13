@@ -73,6 +73,13 @@ export class CustomerWorkflow {
   private safe(w: Workflow): Workflow { const { lease_hash, ...safe } = w; void lease_hash; return safe; }
   private validActor(a: Actor) { if (!allowedActors.includes(a)) fail("FORBIDDEN", "Unbekannte Rolle."); }
   events(actor: Actor, id: string) { this.raw(actor, id); return this.db.prepare("SELECT seq,actor,action,detail,created_at FROM cw_events WHERE workflow_id=? ORDER BY seq").all(id); }
+  /** Pollable current work, not a promise that a chat has been awakened. No reservations are made. */
+  workQueue(actor: Actor) {
+    const now=this.clock();
+    return this.list(actor).filter(w=>w.assignee===actor && ["researching","producing","designing","qa"].includes(w.state) && (!w.lease_until || w.lease_until<=now))
+      .sort((a,b)=>a.updated_at.localeCompare(b.updated_at)||a.id.localeCompare(b.id))
+      .slice(0,50).map(w=>({id:w.id,customer_id:w.customer_id,version:w.version,state:w.state,updated_at:w.updated_at}));
+  }
   status(actor: Actor) {
     const workflows = this.list(actor); const ids = new Set(workflows.map(w => w.id));
     const deliveries = (this.db.prepare("SELECT id,workflow_id,state,result FROM cw_outbox").all() as Pick<Outbox,"id"|"workflow_id"|"state"|"result">[]).filter(o => ids.has(o.workflow_id));
@@ -81,7 +88,7 @@ export class CustomerWorkflow {
   }
   tools(actor: Actor) {
     this.validActor(actor);
-    const actions = ["list_workflows", "get_workflow", "list_customers", "workflow_status", "list_sources", "workflow_events", "claim_stage", "submit_research", "submit_production", "submit_design", "submit_qa"];
+    const actions = ["list_workflows", "get_workflow", "list_customers", "workflow_status", "list_sources", "workflow_events", "work_queue", "claim_stage", "submit_research", "submit_production", "submit_design", "submit_qa"];
     if (["owner","juergen","natalie"].includes(actor)) actions.push("intake");
     if (["owner","juergen"].includes(actor)) actions.push("register_source", "revoke_source", "request_revision", "cancel_workflow");
     if (actor === "owner") actions.push("register_customer", "approve_content", "record_customer_approval", "authorize_delivery", "record_delivery_evidence", "retry_delivery");
@@ -93,6 +100,7 @@ export class CustomerWorkflow {
     if (action === "get_workflow") return this.get(actor, txt(input,"id",100));
     if (action === "list_customers") return this.customers(actor);
     if (action === "workflow_status") return this.status(actor);
+    if (action === "work_queue") return this.workQueue(actor);
     if (action === "workflow_events") return this.events(actor,txt(input,"id",100));
     if (action === "list_sources") { const id=txt(input,"customer_id",100); this.customer(actor,id); return this.db.prepare("SELECT * FROM cw_sources WHERE customer_id=? ORDER BY id").all(id); }
     const key = txt(input,"request_key",200); const fingerprint = workflowHash({action,input});
@@ -175,7 +183,7 @@ export class CustomerWorkflow {
       }
       if(action==="submit_production") {
         if(w.state!=="producing") fail("CONFLICT","Keine Produktion ausstehend."); const sources=this.sources(w); const content=obj(i.content);
-        if(Object.keys(content).some(k=>!["channel","payload","assets","claims","quality_requirements"].includes(k))) fail("INVALID_INPUT","Unbekanntes Inhaltsfeld.");
+        if(Object.keys(content).some(k=>!["channel","payload","assets","claims","quality_requirements","required_asset_roles"].includes(k))) fail("INVALID_INPUT","Unbekanntes Inhaltsfeld.");
         const channel=txt(content,"channel",20), payload=obj(content.payload);
         if(!["email","ghost"].includes(channel)) fail("INVALID_INPUT","Nur E-Mail oder Ghost unterstützt.");
         const fields=channel==="email"?["to","subject","text","html"]:["title","html"];
@@ -186,14 +194,19 @@ export class CustomerWorkflow {
         const assets=list(content.assets,30).map(v=>{const a=obj(v),uri=txt(a,"uri",2000),sha256=txt(a,"sha256",64);if(!/^[a-f0-9]{64}$/.test(sha256)) fail("INVALID_INPUT","Export-Prüfsumme fehlt.");return {uri,sha256};});
         const claims=list(content.claims,200).map(v=>{const c=obj(v),sourceId=txt(c,"source_id",200),kind=txt(c,"kind",30);const s=sources.find(s=>s.id===sourceId);if(!s||!["provider","primary","independent","editorial"].includes(kind)||s.kind!==kind)fail("QUALITY_GATE","Aussage und Quellenart passen nicht zusammen.");return {text:txt(c,"text",4000),source_id:sourceId,kind};});
         if(!claims.length) fail("QUALITY_GATE","Aussagen mit Quellenbezug erforderlich.");
-        const extra=strings(content.quality_requirements??[]); const sealed={channel,payload,delivery_target:this.targetResolver(channel),assets,claims,quality_requirements:[...new Set([...checksRequired,...extra])],producer:actor};
+        const requiredAssetRoles=strings(content.required_asset_roles??[]);
+        if(requiredAssetRoles.length>30 || new Set(requiredAssetRoles).size!==requiredAssetRoles.length) fail("INVALID_INPUT","Asset-Rollen müssen eindeutig sein (maximal 30).");
+        const extra=strings(content.quality_requirements??[]); const sealed={channel,payload,delivery_target:this.targetResolver(channel),assets,claims,required_asset_roles:requiredAssetRoles,quality_requirements:[...new Set([...checksRequired,...extra])],producer:actor};
         const revision=workflowHash({customer_id:w.customer_id,content:sealed,research:JSON.parse(w.research_json!)});
         return this.save(actor,action,w,{state:"designing",assignee:"mika",content_json:canonical(sealed),revision_hash:revision,qa_json:null,owner_approval_json:null,customer_approval_json:null,lease_hash:null,lease_until:null},{revision_hash:revision});
       }
       if(action==="submit_design") {
         if(w.state!=="designing")fail("CONFLICT","Keine Gestaltung ausstehend.");this.sources(w);
         const content=parse<Input>(w.content_json,{});
-        const assets=list(i.assets,30).map(v=>{const a=obj(v),uri=txt(a,"uri",2000),sha256=txt(a,"sha256",64);if(!/^[a-f0-9]{64}$/.test(sha256))fail("INVALID_INPUT","Export-Prüfsumme fehlt.");return {uri,sha256};});
+        const assets=list(i.assets,30).map(v=>{const a=obj(v),uri=txt(a,"uri",2000),sha256=txt(a,"sha256",64);if(!/^[a-f0-9]{64}$/.test(sha256))fail("INVALID_INPUT","Export-Prüfsumme fehlt.");return {...(a.role===undefined?{}:{role:txt(a,"role",200)}),uri,sha256};});
+        const requiredAssetRoles=strings(content.required_asset_roles??[]);
+        const roles=assets.flatMap(a=>a.role?[a.role]:[]);
+        if(new Set(roles).size!==roles.length || requiredAssetRoles.some(role=>!roles.includes(role))) fail("QUALITY_GATE","Benannte Pflicht-Assets fehlen oder Asset-Rollen sind doppelt.");
         const sealed={...content,assets,designer:actor,design_notes:txt(i,"notes",4000)};
         const revision=workflowHash({customer_id:w.customer_id,content:sealed,research:JSON.parse(w.research_json!)});
         return this.save(actor,action,w,{state:"qa",assignee:"juergen",content_json:canonical(sealed),revision_hash:revision,lease_hash:null,lease_until:null},{revision_hash:revision});

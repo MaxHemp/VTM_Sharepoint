@@ -1,0 +1,11 @@
+# Template only. Not installed or enabled by the repository.
+# Uses the existing portal container and data; never dispatches external actions.
+[Unit]
+Description=VTM customer workflow bounded maintenance
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/vtm-teamportal
+ExecStart=/usr/bin/docker compose exec -T -e CUSTOMER_DELIVERY_ENABLED=false app node --experimental-transform-types scripts/customer-workflow-worker.mjs --once
+TimeoutStartSec=120

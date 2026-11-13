@@ -194,3 +194,37 @@ test('real adapter rejects a different configured sender than sealed approval',a
   const adapter=createDeliveryAdapter({enabled:true,env:{SMTP_HOST:'smtp.fixture.example',MAIL_FROM:'other-sender@fixture.example'},store:createSqliteDeliveryStore(f.db),beforeMutation:r=>f.flow.assertDispatchAllowed(r),smtpFactory:()=>({sendMail:async()=>{writes++;return {};}})});
   assert.equal((await f.flow.dispatchOne(adapter,true)).state,'not_sent');assert.equal(writes,0);
 });
+
+test('declared campaign asset roles cannot be omitted or duplicated at design handoff',()=>{
+  const f=fixture();let w=seed(f);w=f.produce(f.research(w),{required_asset_roles:['cover','quote-card']});const c=f.claim(w);
+  const asset=role=>({role,uri:`fixture://${role}`,sha256:'a'.repeat(64)});
+  for(const assets of [[],[asset('cover')],[asset('cover'),asset('cover'),asset('quote-card')]]) {
+    rejects(()=>f.update(c,'submit_design',{lease_token:c.lease_token,assets,notes:'Incomplete fixture'}),'QUALITY_GATE');
+    assert.equal(f.flow.get('mika',w.id).state,'designing');
+  }
+  const ready=f.update(c,'submit_design',{lease_token:c.lease_token,assets:[asset('cover'),asset('quote-card')],notes:'Complete fixture references'});
+  assert.equal(ready.state,'qa');
+  const content=JSON.parse(ready.content_json);
+  assert.deepEqual(content.required_asset_roles,['cover','quote-card']);
+  assert.deepEqual(content.assets.map(a=>a.role),['cover','quote-card']);
+});
+
+test('duplicate mandatory asset roles are invalid rather than silently deduplicated',()=>{
+  const f=fixture();const w=f.research(seed(f));
+  rejects(()=>f.produce(w,{required_asset_roles:['cover','cover']}),'INVALID_INPUT');
+});
+
+test('work queue polls only current unleased own stages and honors customer access',()=>{
+  const f=fixture();let w=seed(f);
+  assert.deepEqual(f.call('artur','work_queue').map(x=>x.id),[w.id]);
+  assert.deepEqual(f.call('mika','work_queue'),[]);
+  const c=f.claim(w);assert.deepEqual(f.call('artur','work_queue'),[]);
+  f.advance(31*60000);assert.equal(f.call('artur','work_queue')[0].version,c.version);
+  w=f.research(f.flow.get('artur',w.id));w=f.produce(w);
+  assert.deepEqual(f.call('artur','work_queue'),[]);
+  const entry=f.call('mika','work_queue')[0];assert.equal(entry.id,w.id);assert.equal(entry.version,w.version);
+  assert.deepEqual(Object.keys(entry).sort(),['customer_id','id','state','updated_at','version']);
+  f.db.prepare('UPDATE cw_customers SET workers=? WHERE id=?').run(JSON.stringify(['artur','juergen']),w.customer_id);
+  assert.deepEqual(f.call('mika','work_queue'),[]);
+  rejects(()=>f.call('kalli','work_queue'),'FORBIDDEN');
+});

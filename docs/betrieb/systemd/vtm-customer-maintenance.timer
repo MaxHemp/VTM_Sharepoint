@@ -1,0 +1,11 @@
+# Template only. Verify host paths, permissions and existing schedules before installation.
+[Unit]
+Description=VTM customer workflow maintenance cadence
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=5min
+Unit=vtm-customer-maintenance.service
+
+[Install]
+WantedBy=timers.target

@@ -31,12 +31,14 @@ const fields: Record<string, Schema> = {
     assets: list(object({ uri: text(2000), sha256: text(64) }), 30),
     claims: list(object({ text: text(4000), source_id: text(200), kind: { type: "string", enum: ["provider", "primary", "independent", "editorial"] } }), 200),
     quality_requirements: list(text(200)),
-  }),
-  assets: list(object({ uri: text(2000), sha256: text(64) }), 30),
+    required_asset_roles: list(text(200),30),
+  }, ["channel","payload","assets","claims","quality_requirements"]),
+  assets: list(object({ uri: text(2000), sha256: text(64), role: text(200) }, ["uri","sha256"]), 30),
   checks: list(object({ criterion: text(200), passed: { type: "boolean" }, evidence: text(4000) })),
   notes: text(4000), revision_hash: text(64), approver: text(320), confirmation: text(4000), reason: text(4000), provider_id: text(500), outcome: { type: "string", enum: ["verified", "not_sent"] },
 };
 const definitions: Record<string, { description: string; required: string[]; optional?: string[]; readOnly?: boolean }> = {
+  work_queue: { description: "Bis zu 50 aktuell übernehmbare eigene Stufen lesen, älteste zuerst. Keine Reservierung, keine Chat-Weckung. Jede Stufe vor Übernahme frisch lesen.", required: [], readOnly: true },
   list_workflows: { description: "Freigegebene Kundenvorgänge lesen. Optional nach Kunde filtern.", required: [], optional: ["customer_id"], readOnly: true },
   get_workflow: { description: "Aktuellen Kundenvorgang mit Version und Inhaltsrevision lesen. Keine Reservierungsgeheimnisse.", required: ["id"], readOnly: true },
   workflow_status: { description: "Workflow- und Ausführungsstatus lesen. Codebereitschaft ist keine Live-Aktivierung.", required: [], readOnly: true },

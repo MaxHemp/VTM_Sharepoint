@@ -155,3 +155,41 @@ npm run build
 `tests/customer-workflow-http.mjs` ist ausschließlich für eine lokale fiktive Datenbank gedacht und verweigert fremde Ziele.
 Es verwendet eine temporäre Fixture-Datei mit lokaler Sitzung und Testtokens. Keine produktiven Daten, Postfächer oder Zugangsdaten übernehmen.
 Der Windows-/DPAPI-Client muss zusätzlich auf Windows mit `tests/operations-client.ps1` geprüft werden; ein Linux-Test ersetzt dies nicht.
+
+## Ergänzung: Vollständigkeit benannter Assets
+
+Die Produktion kann im Feld `content.required_asset_roles` bis zu 30 eindeutige
+Pflicht-Exporte benennen, etwa `cover`, `quote-card-1` und `quote-card-2`.
+Mika muss in `submit_design.assets` jeden Pflicht-Export mit passender `role`,
+URI und SHA-256 einreichen. Fehlende oder doppelte Rollen stoppen die Übergabe
+an QA; die Liste und finale Rollenbelegung sind Teil der versiegelten Revision.
+Bestehende Vorgänge ohne diese optionale Liste bleiben kompatibel.
+Das prüft deklarierte Vollständigkeit, nicht tatsächliche Dateiabrufbarkeit,
+Bildqualität oder richtige Logo-Proportionen. Diese bleiben unabhängig visuell
+zu prüfen. Ein Freitextbriefing wird nicht automatisch als vollständige Asset-Liste erkannt.
+
+## Cloud-Polling und bestehende Auslöser
+
+`cw_work_queue` liefert ausschließlich aktuell übernehmbare Stufen der authentifizierten
+Rolle und der für sie erlaubten Kunden, höchstens 50, älteste zuerst. Aktive Reservierungen
+bleiben ausgenommen. Vor Bearbeitung `cw_get_workflow`, dann `cw_claim_stage` mit der
+frischen Version verwenden. Zwei Poller können dieselbe Stufe sehen; nur einer darf sie
+reservieren. Die bestehenden Versions-/Lease-Prüfungen bleiben maßgeblich. Nach erfolgreicher
+Stufenabgabe erneut pollen. Der Leseaufruf reserviert nichts und quittiert keine Weckung.
+
+Die Vorlagen in `docs/betrieb/systemd/` betreffen nur den vorhandenen Host und erzeugen
+keine neuen Konten, Kosten oder Zugänge. Sie sind NICHT installiert. Vor einer genehmigten
+Installation Hostpfad, Docker-Befehl, bestehende Timer und Ausführungsberechtigung prüfen.
+Der Aufruf erzwingt `CUSTOMER_DELIVERY_ENABLED=false` und enthält keine Versandparameter.
+Er erledigt lediglich Wartung und portalinterne Berichterstellung; weder Mailaufnahme noch
+Chat-Weckung oder aktive Berichtszustellung werden damit aktiviert. Überlappende Ausführungen
+der identischen systemd-Service-Unit werden vermieden; andere Startwege separat abgleichen.
+
+Die Verbindung mit bestehenden Cloud-Agenten benötigt weiterhin einen wirklich unterstützten,
+autorisierten Werkzeugzugang und Auslöser. Keine beliebigen Callback-URLs aus Mail oder
+Auftragsinhalt aufrufen. Keine bestehenden lokalen Stundenläufe parallel zum Cloud-Poller
+aktivieren. Rollen-/Kundenzuordnung und Freigaben bleiben serverseitig, nicht im Mailtext.
+Mailadapter müssen vollständige paginierte Abrufe, dauerhaften erfolgreichen Prüfpunkt,
+24-Stunden-Überlappung und Original-ID-Deduplizierung umsetzen. Ein Teilabruf darf den
+Prüfpunkt nicht vorrücken. Das bestehende Natalie-Postfachsystem bleibt alleiniger Versandweg,
+bis eine ausdrücklich genehmigte Übergabe inklusive Versandabgleich erfolgt ist.
