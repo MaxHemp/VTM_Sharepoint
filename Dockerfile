@@ -18,6 +18,12 @@ ENV NODE_ENV=production \
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/lib/operations.ts ./lib/operations.ts
+COPY --from=builder /app/lib/operations-tools.ts ./lib/operations-tools.ts
+COPY --from=builder /app/scripts/operations-token.mjs ./scripts/operations-token.mjs
+COPY --from=builder /app/lib/customer-workflow.ts ./lib/customer-workflow.ts
+COPY --from=builder /app/lib/customer-delivery.ts ./lib/customer-delivery.ts
+COPY --from=builder /app/scripts/customer-workflow-worker.mjs ./scripts/customer-workflow-worker.mjs
 
 # Datenbank, Uploads und Session-Secret landen in /app/data (als Volume mounten!)
 VOLUME /app/data

@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:operations": "node --experimental-transform-types --test tests/operations.test.mjs",
+    "test:customer-workflow": "node --experimental-transform-types --test tests/customer-workflow.test.mjs tests/customer-delivery.test.mjs",
+    "worker:customer-workflow": "node --experimental-transform-types scripts/customer-workflow-worker.mjs --once"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.7",

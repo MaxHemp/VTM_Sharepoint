@@ -17,11 +17,13 @@ const NAV = [
   { href: "/kalender", label: "Kalender", icon: IconCalendar },
 ];
 
-export function SidebarNav({ isAdmin }: { isAdmin: boolean }) {
+export function SidebarNav({ isAdmin, isOperationsOwner = false }: { isAdmin: boolean; isOperationsOwner?: boolean }) {
   const pathname = usePathname();
-  const items = isAdmin
-    ? [...NAV, { href: "/admin", label: "Verwaltung", icon: IconSettings }]
-    : NAV;
+  const items = [
+    ...NAV,
+    ...(isOperationsOwner ? [{ href: "/betrieb", label: "Betriebszentrale", icon: IconCheck }] : []),
+    ...(isAdmin ? [{ href: "/admin", label: "Verwaltung", icon: IconSettings }] : []),
+  ];
 
   return (
     <nav className="flex-1 space-y-1 px-3" aria-label="Hauptnavigation">
